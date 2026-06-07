@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.deadletterdiary</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/docker</string>
+        <string>compose</string>
+        <string>-f</string>
+        <string>INSTALL_DIR_PLACEHOLDER/docker-compose.yml</string>
+        <string>up</string>
+        <string>-d</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>INSTALL_DIR_PLACEHOLDER</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <false/>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/com.deadletterdiary.out.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/tmp/com.deadletterdiary.err.log</string>
+</dict>
+</plist>

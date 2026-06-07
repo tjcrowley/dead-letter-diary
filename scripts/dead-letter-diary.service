@@ -1,0 +1,16 @@
+[Unit]
+Description=Dead Letter Diary — self-hosted diary application
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=INSTALL_DIR_PLACEHOLDER
+ExecStart=/usr/bin/docker compose -f INSTALL_DIR_PLACEHOLDER/docker-compose.yml up -d
+ExecStop=/usr/bin/docker compose -f INSTALL_DIR_PLACEHOLDER/docker-compose.yml down
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
