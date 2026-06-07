@@ -147,8 +147,85 @@
 
 ## Traceability
 
-*Populated during roadmap creation.*
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| AUTH-01 | Phase 2 | Pending |
+| AUTH-02 | Phase 2 | Pending |
+| AUTH-03 | Phase 2 | Pending |
+| AUTH-04 | Phase 2 | Pending |
+| AUTH-05 | Phase 2 | Pending |
+| AUTH-06 | Phase 2 | Pending |
+| AUTH-07 | Phase 2 | Pending |
+| AUTH-08 | Phase 2 | Pending |
+| CRYPT-01 | Phase 3 | Pending |
+| CRYPT-02 | Phase 3 | Pending |
+| CRYPT-03 | Phase 3 | Pending |
+| CRYPT-04 | Phase 3 | Pending |
+| CRYPT-05 | Phase 3 | Pending |
+| CRYPT-06 | Phase 3 | Pending |
+| CRYPT-07 | Phase 3 | Pending |
+| CRYPT-08 | Phase 3 | Pending |
+| CRYPT-09 | Phase 3 | Pending |
+| CRYPT-10 | Phase 3 | Pending |
+| WRITE-01 | Phase 3 | Pending |
+| WRITE-02 | Phase 3 | Pending |
+| WRITE-03 | Phase 3 | Pending |
+| WRITE-04 | Phase 3 | Pending |
+| WRITE-05 | Phase 3 | Pending |
+| WRITE-06 | Phase 7 | Pending |
+| DMS-01 | Phase 5 | Pending |
+| DMS-02 | Phase 5 | Pending |
+| DMS-03 | Phase 5 | Pending |
+| DMS-04 | Phase 5 | Pending |
+| DMS-05 | Phase 5 | Pending |
+| DMS-06 | Phase 5 | Pending |
+| DMS-07 | Phase 5 | Pending |
+| DMS-08 | Phase 5 | Pending |
+| DMS-09 | Phase 5 | Pending |
+| DMS-10 | Phase 5 | Pending |
+| NOTIF-01 | Phase 5 | Pending |
+| NOTIF-02 | Phase 5 | Pending |
+| NOTIF-03 | Phase 5 | Pending |
+| NOTIF-04 | Phase 5 | Pending |
+| NOTIF-05 | Phase 5 | Pending |
+| NOTIF-06 | Phase 5 | Pending |
+| NOTIF-07 | Phase 5 | Pending |
+| WIPE-01 | Phase 6 | Pending |
+| WIPE-02 | Phase 6 | Pending |
+| WIPE-03 | Phase 6 | Pending |
+| WIPE-04 | Phase 6 | Pending |
+| WIPE-05 | Phase 6 | Pending |
+| WIPE-06 | Phase 6 | Pending |
+| OFFLINE-01 | Phase 4 | Pending |
+| OFFLINE-02 | Phase 4 | Pending |
+| OFFLINE-03 | Phase 4 | Pending |
+| OFFLINE-04 | Phase 4 | Pending |
+| OFFLINE-05 | Phase 4 | Pending |
+| OFFLINE-06 | Phase 4 | Pending |
+| PWA-01 | Phase 4 | Pending |
+| PWA-02 | Phase 4 | Pending |
+| PWA-03 | Phase 4 | Pending |
+| PWA-04 | Phase 4 | Pending |
+| PWA-05 | Phase 4 | Pending |
+| PWA-06 | Phase 4 | Pending |
+| SETUP-01 | Phase 7 | Pending |
+| SETUP-02 | Phase 7 | Pending |
+| SETUP-03 | Phase 7 | Pending |
+| SETUP-04 | Phase 7 | Pending |
+| SETUP-05 | Phase 7 | Pending |
+| INST-01 | Phase 1 | Pending |
+| INST-02 | Phase 1 | Pending |
+| INST-03 | Phase 7 | Pending |
+| INST-04 | Phase 7 | Pending |
+| INST-05 | Phase 1 | Pending |
+| INST-06 | Phase 1 | Pending |
+| INST-07 | Phase 6 | Pending |
+| INST-08 | Phase 6 | Pending |
+| INST-09 | Phase 1 | Pending |
+| INST-10 | Phase 1 | Pending |
+
+**Coverage:** 74/74 v1 requirements mapped
 
 ---
 *Requirements defined: 2026-06-06*
-*Last updated: 2026-06-06 after research synthesis*
+*Last updated: 2026-06-06 after roadmap creation*
