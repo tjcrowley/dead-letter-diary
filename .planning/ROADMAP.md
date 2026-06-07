@@ -32,7 +32,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Fastify API responds to health check at `/api/health` over HTTPS
   4. Database migrations run on first boot and create multi-user-ready schema (user_id on every table)
   5. All secrets (VAPID keys, session secret, shard encryption key) auto-generate on first run
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
 - [ ] 01-01: Docker Compose, Caddy, and database schema
