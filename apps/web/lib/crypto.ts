@@ -12,6 +12,13 @@
 
 const HKDF_INFO = new TextEncoder().encode("dead-letter-diary-dmk-wrap");
 
+// TypeScript 5 types Uint8Array.buffer as ArrayBufferLike (includes SharedArrayBuffer),
+// but Web Crypto APIs expect BufferSource backed by ArrayBuffer. This helper creates a
+// fresh Uint8Array view over a plain ArrayBuffer to satisfy the type checker.
+function buf(data: Uint8Array): Uint8Array<ArrayBuffer> {
+  return new Uint8Array(data) as Uint8Array<ArrayBuffer>;
+}
+
 // ---------------------------------------------------------------------------
 // DMK generation
 // ---------------------------------------------------------------------------
@@ -62,7 +69,7 @@ async function deriveWrappingKey(
   // Import XOR'd shards as HKDF base key — MUST be non-extractable per Web Crypto spec
   const hkdfKey = await crypto.subtle.importKey(
     "raw",
-    ikm,
+    buf(ikm),
     "HKDF",
     false, // extractable must be false for HKDF
     ["deriveKey"]
@@ -73,8 +80,8 @@ async function deriveWrappingKey(
     {
       name: "HKDF",
       hash: "SHA-256",
-      salt: hkdfSalt,
-      info: HKDF_INFO,
+      salt: buf(hkdfSalt),
+      info: buf(HKDF_INFO),
     },
     hkdfKey,
     { name: "AES-GCM", length: 256 },
@@ -107,7 +114,7 @@ export async function wrapDmk(
 
   const wrappedDmk = await crypto.subtle.wrapKey("raw", dmk, wrappingKey, {
     name: "AES-GCM",
-    iv: wrapIv,
+    iv: buf(wrapIv),
   });
 
   return { wrappedDmk, wrapIv };
@@ -131,7 +138,7 @@ export async function unwrapDmk(
     "raw",
     wrappedDmk,
     wrappingKey,
-    { name: "AES-GCM", iv: wrapIv },
+    { name: "AES-GCM", iv: buf(wrapIv) },
     { name: "AES-GCM", length: 256 },
     false, // NON-extractable — cannot be exported after unwrap
     ["encrypt", "decrypt"]
@@ -167,9 +174,9 @@ export async function encryptEntry(
   const encoded = new TextEncoder().encode(plaintext);
 
   const ciphertext = await crypto.subtle.encrypt(
-    { name: "AES-GCM", iv, additionalData: aad },
+    { name: "AES-GCM", iv: buf(iv), additionalData: buf(aad) },
     dmk,
-    encoded
+    buf(encoded)
   );
 
   return { ciphertext, iv, aad };
@@ -186,7 +193,7 @@ export async function decryptEntry(
   aad: Uint8Array
 ): Promise<string> {
   const decrypted = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv, additionalData: aad },
+    { name: "AES-GCM", iv: buf(iv), additionalData: buf(aad) },
     dmk,
     ciphertext
   );
@@ -210,7 +217,7 @@ export async function deriveShardFromPassphrase(
 
   const baseKey = await crypto.subtle.importKey(
     "raw",
-    encoded,
+    buf(encoded),
     "PBKDF2",
     false,
     ["deriveBits"]
@@ -220,7 +227,7 @@ export async function deriveShardFromPassphrase(
     {
       name: "PBKDF2",
       hash: "SHA-256",
-      salt,
+      salt: buf(salt),
       iterations: 600_000,
     },
     baseKey,
