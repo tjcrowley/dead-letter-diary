@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Completed 01-03-PLAN.md
-last_updated: "2026-06-07T04:44:56.203Z"
-last_activity: 2026-06-06 -- Roadmap created (7 phases, 74 requirements mapped)
+status: executing
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-06-07T05:15:52.989Z"
+last_activity: 2026-06-07 -- Completed 02-01 passphrase auth and session layer
 progress:
   total_phases: 7
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
-  percent: 0
+  total_plans: 6
+  completed_plans: 4
+  percent: 67
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-06)
 
 **Core value:** The diary must actually be inescapably deletable -- cryptographically irrecoverable -- otherwise the commitment device has no teeth.
-**Current focus:** Phase 1: Foundation
+**Current focus:** Phase 2: Auth & WebAuthn
 
 ## Current Position
 
-Phase: 1 of 7 (Foundation)
-Plan: 0 of 3 in current phase
-Status: Ready to plan
-Last activity: 2026-06-06 -- Roadmap created (7 phases, 74 requirements mapped)
+Phase: 2 of 7 (Auth & WebAuthn)
+Plan: 1 of 3 in current phase
+Status: Executing
+Last activity: 2026-06-07 -- Completed 02-01 passphrase auth and session layer
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-foundation P01 | 3 | 2 tasks | 27 files |
 | Phase 01-foundation P02 | 90 | 2 tasks | 12 files |
 | Phase 01-foundation P03 | 4 | 2 tasks | 4 files |
+| Phase 02 P01 | 4 | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,9 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: Secrets set into process.env at runtime — smoke test uses node -e ensureSecrets() not printenv to verify secret presence
 - [Phase 01-foundation]: Generated secrets persisted to deadletter_api_secrets named volume via GENERATED_ENV_PATH — avoids host .env write and bind mount issues
 - [Phase 01-foundation]: INST-09 volume prefix is dead-letter-diary_deadletter_ (compose project + volume name) — grep on substring not prefix
+- [Phase 02]: Argon2id with memoryCost=65536, timeCost=3, parallelism=4 for passphrase hashing
+- [Phase 02]: Session tokens SHA-256 hashed before DB storage -- raw token never persisted
+- [Phase 02]: httpOnly secure sameSite=strict cookie named session with 7-day expiry
 
 ### Pending Todos
 
@@ -84,6 +88,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-07T04:41:30.653Z
-Stopped at: Completed 01-03-PLAN.md
+Last session: 2026-06-07T05:15:52.986Z
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None
