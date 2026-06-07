@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Auth & WebAuthn** - Account creation, WebAuthn passkey enrollment, biometric/passphrase unlock, sessions (completed 2026-06-07)
 - [x] **Phase 3: Encryption & Writing** - Key derivation, shard split, DMK, encrypted write surface with live word count (completed 2026-06-07)
 - [x] **Phase 4: Offline & PWA** - Service Worker, IndexedDB persistence, sync queue, installable PWA shell (completed 2026-06-07)
-- [ ] **Phase 5: Dead Man's Switch** - Deadline state machine, check-in validation, grace days, push notifications
+- [x] **Phase 5: Dead Man's Switch** - Deadline state machine, check-in validation, grace days, push notifications (completed 2026-06-07)
 - [ ] **Phase 6: Wipe & Ceremony** - Shard deletion, wipe log, client cleanup, wipe UI, panic encrypt
 - [ ] **Phase 7: Installer & Polish** - System service, mkcert setup, first-run ritual, streaks, settings, past entries
 
@@ -152,6 +152,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 2. Auth & WebAuthn | 3/3 | Complete   | 2026-06-07 |
 | 3. Encryption & Writing | 3/3 | Complete   | 2026-06-07 |
 | 4. Offline & PWA | 3/3 | Complete   | 2026-06-07 |
-| 5. Dead Man's Switch | 2/3 | In Progress|  |
+| 5. Dead Man's Switch | 3/3 | Complete   | 2026-06-07 |
 | 6. Wipe & Ceremony | 0/3 | Not started | - |
 | 7. Installer & Polish | 0/3 | Not started | - |

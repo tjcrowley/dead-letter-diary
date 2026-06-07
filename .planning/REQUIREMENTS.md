@@ -48,8 +48,8 @@
 - [x] **DMS-06**: Two-phase wipe: mark pending → 60s settle window → confirm → delete shard
 - [x] **DMS-07**: Row-level locks prevent race between check-in and wipe
 - [x] **DMS-08**: Wipe log (append-only) written BEFORE shard deletion for crash safety
-- [ ] **DMS-09**: Grace day: one 24h reprieve per week, manually invoked, weekly budget visible
-- [ ] **DMS-10**: Akrasia Horizon: weakening commitments (lower word count, longer window) requires 7-day advance. Strengthening is immediate.
+- [x] **DMS-09**: Grace day: one 24h reprieve per week, manually invoked, weekly budget visible
+- [x] **DMS-10**: Akrasia Horizon: weakening commitments (lower word count, longer window) requires 7-day advance. Strengthening is immediate.
 
 ### Notifications
 
@@ -181,8 +181,8 @@
 | DMS-06 | Phase 5 | Complete |
 | DMS-07 | Phase 5 | Complete |
 | DMS-08 | Phase 5 | Complete |
-| DMS-09 | Phase 5 | Pending |
-| DMS-10 | Phase 5 | Pending |
+| DMS-09 | Phase 5 | Complete |
+| DMS-10 | Phase 5 | Complete |
 | NOTIF-01 | Phase 5 | Complete |
 | NOTIF-02 | Phase 5 | Complete |
 | NOTIF-03 | Phase 5 | Complete |

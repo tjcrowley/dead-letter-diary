@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-06-07T21:25:13.524Z"
+stopped_at: Completed 05-03-PLAN.md
+last_updated: "2026-06-07T21:30:52.824Z"
 last_activity: 2026-06-07 -- Completed 04-02 outbox sync queue — db v2, sync.ts, SyncStatus component, write page wired
 progress:
   total_phases: 7
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 15
-  completed_plans: 14
+  completed_plans: 15
   percent: 92
 ---
 
@@ -64,6 +64,7 @@ Progress: [█████████░] 92%
 | Phase 04-offline-pwa P03 | 3 | 2 tasks | 8 files |
 | Phase 05-dead-mans-switch P01 | 5 | 2 tasks | 11 files |
 | Phase 05-dead-mans-switch P02 | 5 | 2 tasks | 12 files |
+| Phase 05-dead-mans-switch P03 | 15 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -116,6 +117,8 @@ Recent decisions affecting current work:
 - [Phase 05-dead-mans-switch]: Shard gate permissive when no deadline_state row — onboarding must work before deadline is configured
 - [Phase 05-dead-mans-switch]: initVapid() no-op when VAPID keys absent — safe for test environments before first run
 - [Phase 05-dead-mans-switch]: ON CONFLICT uses subscription->>'endpoint' JSONB extraction — no endpoint TEXT column needed
+- [Phase 05-dead-mans-switch]: Mixed Akrasia axis logic: each axis evaluated independently — word_minimum strengthening writes immediately even when window_hours weakens; up to 2 UPDATE statements
+- [Phase 05-dead-mans-switch]: Grace budget reset uses Luxon rolling 7-day window (diff >= 7 days from grace_used_at), not Mon-Sun calendar week
 
 ### Pending Todos
 
@@ -128,6 +131,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-07T21:25:09.542Z
-Stopped at: Completed 05-02-PLAN.md
+Last session: 2026-06-07T21:30:46.919Z
+Stopped at: Completed 05-03-PLAN.md
 Resume file: None
