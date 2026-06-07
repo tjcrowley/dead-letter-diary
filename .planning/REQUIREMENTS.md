@@ -36,7 +36,7 @@
 - [x] **WRITE-03**: Auto-save to IndexedDB every 1-2 seconds (debounced, never lose a keystroke)
 - [x] **WRITE-04**: Word count computed using Intl.Segmenter with isWordLike (supports CJK/Thai)
 - [x] **WRITE-05**: Server verifies word count from AAD on check-in submission
-- [ ] **WRITE-06**: User can browse past entries in read-only view (client-side decryption)
+- [x] **WRITE-06**: User can browse past entries in read-only view (client-side decryption)
 
 ### Dead Man's Switch
 
@@ -172,7 +172,7 @@
 | WRITE-03 | Phase 3 | Complete |
 | WRITE-04 | Phase 3 | Complete |
 | WRITE-05 | Phase 3 | Complete |
-| WRITE-06 | Phase 7 | Pending |
+| WRITE-06 | Phase 7 | Complete |
 | DMS-01 | Phase 5 | Complete |
 | DMS-02 | Phase 5 | Complete |
 | DMS-03 | Phase 5 | Complete |
