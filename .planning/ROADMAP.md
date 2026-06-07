@@ -66,12 +66,12 @@ Plans:
   3. Entries auto-save to IndexedDB every 1-2 seconds and are encrypted with AES-GCM 256 using DMK
   4. Server stores its shard in PostgreSQL and returns it only to authenticated sessions in good standing
   5. Server verifies word count from AAD on check-in submission
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: Crypto module (HKDF, AES-GCM, DMK wrap/unwrap, shard split)
-- [ ] 03-02: Write surface with live word count and auto-save
-- [ ] 03-03: Server shard storage and word count verification
+- [ ] 03-01-PLAN.md — Crypto module and word count (Web Crypto API, HKDF, AES-GCM, PBKDF2, Intl.Segmenter)
+- [ ] 03-02-PLAN.md — Write surface with live word count and encrypted Dexie auto-save
+- [ ] 03-03-PLAN.md — Server shard storage (at-rest encryption) and entry submission with AAD word count verification
 
 ### Phase 4: Offline & PWA
 **Goal**: The diary works without internet and is installable as a PWA on all platforms
