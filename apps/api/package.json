@@ -8,6 +8,10 @@
     "build": "tsc"
   },
   "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/jwt": "^10.1.0",
+    "@simplewebauthn/server": "^13.3.1",
+    "argon2": "^0.44.0",
     "dotenv": "^16.4.7",
     "fastify": "^5.8.0",
     "fastify-plugin": "^5.1.0",
@@ -19,7 +23,9 @@
     "@types/node": "^22.0.0",
     "@types/pg": "^8.11.10",
     "@types/web-push": "^3.6.4",
+    "@vitest/coverage-v8": "^4.1.8",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^4.1.8"
   }
 }
