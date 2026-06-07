@@ -83,12 +83,12 @@ Plans:
   3. PWA is installable with proper manifest, icons, and splash screens on iOS, Android, and desktop
   4. Service Worker caches app shell but NEVER caches crypto/session endpoints
   5. Private/incognito mode is detected and the diary refuses to open with a clear message
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: Service Worker (Serwist) and PWA manifest
-- [ ] 04-02: Offline write queue and sync protocol
-- [ ] 04-03: Storage persistence, quota monitoring, and platform edge cases
+- [ ] 04-01-PLAN.md — Serwist SW, PWA manifest, icons, offline page, WKWebView guard, install prompt, SW update toast, encryption badge
+- [ ] 04-02-PLAN.md — Offline write queue (outbox pattern), sync flush on online, SyncStatus indicator
+- [ ] 04-03-PLAN.md — Storage persistence (persist()), incognito detection, quota monitoring, PrivateModeGuard
 
 ### Phase 5: Dead Man's Switch
 **Goal**: The deadline engine enforces the writing commitment with configurable windows, warnings, and grace days
