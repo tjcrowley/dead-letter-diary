@@ -1,5 +1,7 @@
 import webpush from "web-push";
 import type { WebPushError } from "web-push";
+import type { Pool } from "pg";
+import type { FastifyBaseLogger } from "fastify";
 
 export type NotificationTone = "gentle" | "urgent" | "final";
 
@@ -83,6 +85,56 @@ export async function sendDeadlineWarning(
     payload,
     { urgency, TTL }
   );
+}
+
+/**
+ * Send a Web Push notification when the user's diary has been permanently wiped.
+ * Fetches the user's push subscription from the notifications table.
+ * Non-fatal: push failures are logged as warn (wipe is already complete regardless).
+ * Always deletes the subscription row after the attempt — it is no longer needed.
+ *
+ * @param pool  - pg Pool for DB access
+ * @param userId - UUID of the wiped user
+ * @param log   - Fastify logger
+ */
+export async function sendWipeNotification(
+  pool: Pool,
+  userId: string,
+  log: FastifyBaseLogger
+): Promise<void> {
+  // 1. Fetch subscription
+  const result = await pool.query(
+    "SELECT subscription FROM notifications WHERE user_id = $1 LIMIT 1",
+    [userId]
+  );
+
+  if (result.rows.length === 0) {
+    // No subscription — nothing to send
+    return;
+  }
+
+  const subscription = (result.rows[0] as { subscription: unknown }).subscription;
+
+  // 2. Build wipe payload
+  const payload = JSON.stringify({
+    type: "wipe",
+    title: "Dead Letter Diary",
+    body: "Your diary has been permanently destroyed.",
+  });
+
+  // 3. Send push — non-fatal on error
+  try {
+    await webpush.sendNotification(
+      subscription as webpush.PushSubscription,
+      payload,
+      { urgency: "high", TTL: 0 }
+    );
+  } catch (err) {
+    log.warn({ userId, err }, "wipe-notification: push failed (non-fatal)");
+  }
+
+  // 4. Delete subscription row — it is no longer needed (wipe is permanent)
+  await pool.query("DELETE FROM notifications WHERE user_id = $1", [userId]);
 }
 
 // Re-export WebPushError type for callers that need to check statusCode

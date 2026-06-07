@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import type { Pool, PoolClient } from "pg";
 import type { FastifyBaseLogger } from "fastify";
-import { sendDeadlineWarning } from "./notification-sender.js";
+import { sendDeadlineWarning, sendWipeNotification } from "./notification-sender.js";
 import type { WebPushError } from "./notification-sender.js";
 
 /**
@@ -173,7 +173,8 @@ export async function checkDeadlines(pool: Pool, log: FastifyBaseLogger): Promis
       const client = await pool.connect();
       try {
         await confirmWipe(client, userId);
-        log.info({ userId }, "deadline-engine: confirmed wipe for settled pending_wipe user");
+        await sendWipeNotification(pool, userId, log);
+        log.info({ userId }, "deadline-engine: confirmed wipe + sent wipe notification");
       } catch (err) {
         log.error({ userId, err }, "deadline-engine: error confirming wipe");
       } finally {
