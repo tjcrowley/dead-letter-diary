@@ -1,0 +1,154 @@
+# Requirements: Dead Letter Diary
+
+**Defined:** 2026-06-06
+**Core Value:** The diary must actually be inescapably deletable — cryptographically irrecoverable — otherwise the commitment device has no teeth.
+
+## v1 Requirements
+
+### Authentication
+
+- [ ] **AUTH-01**: User can create account with passphrase during first-run setup
+- [ ] **AUTH-02**: User can register a WebAuthn passkey (biometric or hardware key) with PRF extension
+- [ ] **AUTH-03**: User can unlock the diary with biometric (Face ID, Touch ID, Windows Hello, fingerprint)
+- [ ] **AUTH-04**: User can unlock with passphrase as fallback when PRF is unavailable
+- [ ] **AUTH-05**: User can set a PIN for quick unlock (UI lockout layer, not a key source)
+- [ ] **AUTH-06**: Passphrase/PIN fallback is always visible alongside biometric prompt
+- [ ] **AUTH-07**: Server-side UV flag verification rejects assertions without biometric confirmation
+- [ ] **AUTH-08**: Session persists across browser refresh (JWT or secure cookie)
+
+### Encryption
+
+- [ ] **CRYPT-01**: Diary Master Key (DMK) generated at account creation (32 bytes random)
+- [ ] **CRYPT-02**: DMK wrapped with AES-GCM using wrap_key derived from HKDF(device_shard XOR server_shard)
+- [ ] **CRYPT-03**: Device shard derived from WebAuthn PRF output (or Argon2id from passphrase as fallback)
+- [ ] **CRYPT-04**: Server shard stored in PostgreSQL, returned only to authenticated sessions in good standing
+- [ ] **CRYPT-05**: All diary entries encrypted with AES-GCM 256 using DMK
+- [ ] **CRYPT-06**: Fresh random IV (12 bytes) per encryption operation — never reused
+- [ ] **CRYPT-07**: Entry metadata (entry_id, user_id, word_count) bound as AES-GCM AAD
+- [ ] **CRYPT-08**: DMK held as non-extractable CryptoKey in memory during session — never serialized
+- [ ] **CRYPT-09**: Per-user random HKDF salt (32 bytes) stored at registration
+- [ ] **CRYPT-10**: All shard/token/challenge comparisons use crypto.timingSafeEqual()
+
+### Writing
+
+- [ ] **WRITE-01**: Distraction-free write surface with auto-focus, minimal chrome
+- [ ] **WRITE-02**: Live word count visible at all times, turns green when minimum is met
+- [ ] **WRITE-03**: Auto-save to IndexedDB every 1-2 seconds (debounced, never lose a keystroke)
+- [ ] **WRITE-04**: Word count computed using Intl.Segmenter with isWordLike (supports CJK/Thai)
+- [ ] **WRITE-05**: Server verifies word count from AAD on check-in submission
+- [ ] **WRITE-06**: User can browse past entries in read-only view (client-side decryption)
+
+### Dead Man's Switch
+
+- [ ] **DMS-01**: Configurable check-in window (default 24h, range 12h–7 days)
+- [ ] **DMS-02**: Configurable word minimum per check-in (default 50, range 25–500)
+- [ ] **DMS-03**: Server-side deadline state machine with absolute UTC timestamps
+- [ ] **DMS-04**: Deadline computed in user's IANA timezone via date library (not raw arithmetic)
+- [ ] **DMS-05**: Poller (every 60s) checks deadlines — not a cron scheduler
+- [ ] **DMS-06**: Two-phase wipe: mark pending → 60s settle window → confirm → delete shard
+- [ ] **DMS-07**: Row-level locks prevent race between check-in and wipe
+- [ ] **DMS-08**: Wipe log (append-only) written BEFORE shard deletion for crash safety
+- [ ] **DMS-09**: Grace day: one 24h reprieve per week, manually invoked, weekly budget visible
+- [ ] **DMS-10**: Akrasia Horizon: weakening commitments (lower word count, longer window) requires 7-day advance. Strengthening is immediate.
+
+### Notifications
+
+- [ ] **NOTIF-01**: Push notification warnings at configurable thresholds (default: 24h, 4h, 1h, 15min)
+- [ ] **NOTIF-02**: Warning tone escalates from gentle to urgent to final across thresholds
+- [ ] **NOTIF-03**: Push setup gated behind Home Screen install check on iOS
+- [ ] **NOTIF-04**: Re-subscribe on every app launch (iOS push subscriptions silently expire)
+- [ ] **NOTIF-05**: In-app deadline banner as backup when push fails — in-app is source of truth
+- [ ] **NOTIF-06**: `urgency: "high"` on deadline warnings to survive low-power mode
+- [ ] **NOTIF-07**: Soft-ask pattern for push permission (earn the prompt, don't ask on first load)
+
+### Wipe Ceremony
+
+- [ ] **WIPE-01**: Server deletes shard when deadline passes — data is cryptographically dead at that instant
+- [ ] **WIPE-02**: Client receives wipe push → clears IndexedDB, caches, cookies
+- [ ] **WIPE-03**: Final UI: blank screen with only the diary title — decoy "as if it never happened" state
+- [ ] **WIPE-04**: Optional diary epitaph (set at creation, immutable) displayed on wipe screen
+- [ ] **WIPE-05**: Panic encrypt: on-demand immediate wipe button in settings (with confirmation)
+- [ ] **WIPE-06**: Client checks wipe log on every session start — shows blank state if wiped
+
+### Offline
+
+- [ ] **OFFLINE-01**: Write surface works without internet — entries saved to IndexedDB
+- [ ] **OFFLINE-02**: Sync queue (outbox pattern) flushes when connection restored
+- [ ] **OFFLINE-03**: Sync status indicator: "Synced" / "Saving..." / "Offline — N entries pending"
+- [ ] **OFFLINE-04**: `navigator.storage.persist()` called on PWA install
+- [ ] **OFFLINE-05**: Private/incognito mode detected → refuse to open diary with clear message
+- [ ] **OFFLINE-06**: Storage quota monitoring with compression and user-visible usage display
+
+### PWA
+
+- [ ] **PWA-01**: Installable PWA with web app manifest, icons, splash screens
+- [ ] **PWA-02**: Service Worker via Serwist — app shell cached, crypto endpoints NetworkOnly
+- [ ] **PWA-03**: iOS "Add to Home Screen" coaching (custom instructions with screenshots)
+- [ ] **PWA-04**: SW update handled gracefully — "update available" toast, no mid-write activation
+- [ ] **PWA-05**: WKWebView detection → redirect to Safari with instructions
+- [ ] **PWA-06**: Encryption status badge visible ("End-to-end encrypted")
+
+### Setup & Settings
+
+- [ ] **SETUP-01**: First-run setup page: create owner account → WebAuthn enrollment → set diary title → set commitments → confirm "no recovery"
+- [ ] **SETUP-02**: Explicit "I understand this diary can be permanently destroyed" acknowledgment (cannot proceed without it)
+- [ ] **SETUP-03**: Settings page: word minimum, timeout, warning thresholds, grace budget, timezone
+- [ ] **SETUP-04**: Streak counter visible on dashboard (days written, current streak)
+- [ ] **SETUP-05**: Deadline countdown visible from every screen
+
+### Local Deployment & Installer
+
+- [ ] **INST-01**: Docker Compose with `restart: always` — PostgreSQL, Redis, Fastify, Next.js, Caddy
+- [ ] **INST-02**: Caddy reverse proxy with mkcert local CA cert for HTTPS
+- [ ] **INST-03**: Installer script: checks Docker → starts Compose → registers system service → opens browser
+- [ ] **INST-04**: System service integration: launchd plist (macOS), systemd user unit (Linux)
+- [ ] **INST-05**: First-run auto-generates all secrets (VAPID keys, session secret, shard encryption key)
+- [ ] **INST-06**: `.env.example` only — `.env` in `.gitignore` from commit zero
+- [ ] **INST-07**: Server shards in separate PostgreSQL schema excluded from backups
+- [ ] **INST-08**: Opinionated `backup.sh` that explicitly excludes shards schema
+- [ ] **INST-09**: Named Docker volumes with prominent warnings about `docker compose down -v`
+- [ ] **INST-10**: HTTPS-only boot check — refuse to start on `http://` (except localhost)
+
+## v2 Requirements
+
+### Multi-Device
+
+- **MDEV-01**: User can add a second device via out-of-band pairing ceremony (QR code / 6-digit code)
+- **MDEV-02**: Each device has its own wrapped DMK in `key_wraps` table
+- **MDEV-03**: Device removal deletes `key_wraps` row without rotating DMK (optional DMK rotation for forward security)
+
+### Social / Accountability
+
+- **SOC-01**: Optional public "wall of honor" — publishes only survival/death status (no content)
+- **SOC-02**: Optional commitment statement shared to a public URL
+
+### Platform
+
+- **PLAT-01**: Email fallback for push warnings (requires SMTP config)
+- **PLAT-02**: Windows Service integration for Windows self-hosters
+- **PLAT-03**: Admin dashboard for multi-user self-hosted instances
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| Cloud backup of diary contents | Backups are the inverse of a dead man's switch |
+| "Forgot passphrase" recovery | Any recovery path = server can decrypt = E2E is a lie |
+| Auto-extending deadline | Defeats the product; grace day is the only safety valve |
+| Snooze/dismiss notifications | Snoozing the warning doesn't dismiss the deadline |
+| Streak freezes / streak insurance | Defeats loss-aversion mechanic; grace day is the only insurance |
+| Rich text editor with toolbars | Destroys distraction-free writing; markdown-aware textarea only |
+| Sharing features | Private by design; sharing breaks the trust model |
+| AI writing prompts | Sends plaintext to LLM, breaking E2E |
+| Mood/weather/location metadata | Leaks plaintext-equivalent metadata to server |
+| Multi-diary support | Simplifies key management in v1 |
+| Open registration | Single-user app; open registration invites spam/abandonment |
+| Telemetry with entry content | Even crash report line numbers could leak structure |
+
+## Traceability
+
+*Populated during roadmap creation.*
+
+---
+*Requirements defined: 2026-06-06*
+*Last updated: 2026-06-06 after research synthesis*
