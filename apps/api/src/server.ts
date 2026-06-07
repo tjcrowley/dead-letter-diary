@@ -3,6 +3,7 @@ config();
 
 import Fastify from "fastify";
 import dbPlugin from "./plugins/db.js";
+import redisPlugin from "./plugins/redis.js";
 import authPlugin from "./plugins/auth.js";
 import healthRoutes from "./routes/health.js";
 import authRoutes from "./routes/auth.js";
@@ -49,6 +50,7 @@ async function start(): Promise<void> {
   );
 
   fastify.register(dbPlugin);
+  fastify.register(redisPlugin);
   fastify.register(authPlugin);
   fastify.register(healthRoutes);
   fastify.register(authRoutes);
