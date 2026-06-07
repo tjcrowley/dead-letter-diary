@@ -16,7 +16,8 @@ describe("countWords", () => {
   });
 
   it("counts a sentence correctly (punctuation not counted)", () => {
-    expect(countWords("This is a test sentence with seven words.")).toBe(7);
+    // "This is a test sentence with eight words" = 8 word-like segments
+    expect(countWords("This is a test sentence with eight words.")).toBe(8);
   });
 
   it("counts CJK characters as word-like segments", () => {
