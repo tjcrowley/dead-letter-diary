@@ -100,12 +100,12 @@ Plans:
   3. User can invoke one grace day per week (24h reprieve), with weekly budget visible in the UI
   4. Weakening commitments (lower word count, longer window) requires 7-day advance; strengthening is immediate
   5. Two-phase wipe with 60-second settle window and row-level locks prevents race between check-in and wipe
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 05-01: Deadline state machine and poller
-- [ ] 05-02: Push notifications with escalation and iOS edge cases
-- [ ] 05-03: Grace days, Akrasia Horizon, and check-in validation
+- [ ] 05-01-PLAN.md — Deadline engine library, poller plugin, deadline routes, shard gate, DeadlineBanner
+- [ ] 05-02-PLAN.md — Push notification sender, subscription routes, iOS PWA gate, SW push handler, soft-ask button
+- [ ] 05-03-PLAN.md — Grace day route, Akrasia Horizon full test coverage, GraceDayButton and AkrasiaSettings UI
 
 ### Phase 6: Wipe & Ceremony
 **Goal**: When the deadline passes, the diary is cryptographically destroyed with an irreversible, observable ceremony
