@@ -64,11 +64,11 @@
 ### Wipe Ceremony
 
 - [x] **WIPE-01**: Server deletes shard when deadline passes — data is cryptographically dead at that instant
-- [ ] **WIPE-02**: Client receives wipe push → clears IndexedDB, caches, cookies
-- [ ] **WIPE-03**: Final UI: blank screen with only the diary title — decoy "as if it never happened" state
+- [x] **WIPE-02**: Client receives wipe push → clears IndexedDB, caches, cookies
+- [x] **WIPE-03**: Final UI: blank screen with only the diary title — decoy "as if it never happened" state
 - [x] **WIPE-04**: Optional diary epitaph (set at creation, immutable) displayed on wipe screen
 - [x] **WIPE-05**: Panic encrypt: on-demand immediate wipe button in settings (with confirmation)
-- [ ] **WIPE-06**: Client checks wipe log on every session start — shows blank state if wiped
+- [x] **WIPE-06**: Client checks wipe log on every session start — shows blank state if wiped
 
 ### Offline
 
@@ -191,11 +191,11 @@
 | NOTIF-06 | Phase 5 | Complete |
 | NOTIF-07 | Phase 5 | Complete |
 | WIPE-01 | Phase 6 | Complete |
-| WIPE-02 | Phase 6 | Pending |
-| WIPE-03 | Phase 6 | Pending |
+| WIPE-02 | Phase 6 | Complete |
+| WIPE-03 | Phase 6 | Complete |
 | WIPE-04 | Phase 6 | Complete |
 | WIPE-05 | Phase 6 | Complete |
-| WIPE-06 | Phase 6 | Pending |
+| WIPE-06 | Phase 6 | Complete |
 | OFFLINE-01 | Phase 4 | Complete |
 | OFFLINE-02 | Phase 4 | Complete |
 | OFFLINE-03 | Phase 4 | Complete |
