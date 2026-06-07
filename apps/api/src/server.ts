@@ -3,7 +3,9 @@ config();
 
 import Fastify from "fastify";
 import dbPlugin from "./plugins/db.js";
+import authPlugin from "./plugins/auth.js";
 import healthRoutes from "./routes/health.js";
+import authRoutes from "./routes/auth.js";
 import { runMigrations } from "./boot/migrate.js";
 import { ensureSecrets } from "./boot/secrets.js";
 
@@ -47,7 +49,9 @@ async function start(): Promise<void> {
   );
 
   fastify.register(dbPlugin);
+  fastify.register(authPlugin);
   fastify.register(healthRoutes);
+  fastify.register(authRoutes);
 
   const shutdown = async () => {
     try {
