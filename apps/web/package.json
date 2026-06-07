@@ -17,6 +17,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "typescript": "^5"
+    "happy-dom": "^20.10.2",
+    "typescript": "^5",
+    "vitest": "^4.1.8"
   }
 }
