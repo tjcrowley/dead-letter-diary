@@ -49,20 +49,22 @@ async function buildWebAuthnApp(
 
   // Register mock redis plugin
   const fp = (await import("fastify-plugin")).default;
-  const { default: MockRedis } = await import("ioredis");
+  const ioredisModule = await import("ioredis");
+  const MockRedis = ioredisModule.default as unknown as new () => Record<string, unknown>;
   const mockRedisClient = new MockRedis();
   app.register(
     fp(
       async (fastify) => {
-        fastify.decorate("redis", mockRedisClient);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        fastify.decorate("redis", mockRedisClient as any);
       },
       { name: "redis" }
     )
   );
 
   // Register webauthn routes
-  const { default: webauthnRoutes } = await import("../webauthn.js");
-  app.register(webauthnRoutes);
+  const webauthnModule = await import("../webauthn.js");
+  app.register(webauthnModule.default as unknown as Parameters<typeof app.register>[0]);
 
   return app;
 }

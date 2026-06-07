@@ -47,8 +47,8 @@ export async function buildTestApp(
   );
 
   // Dynamically import auth plugin to pick up its decorations
-  const { default: authPlugin } = await import("../plugins/auth.js");
-  app.register(authPlugin);
+  const authModule = await import("../plugins/auth.js");
+  app.register(authModule.default as unknown as Parameters<typeof app.register>[0]);
 
   // Don't call app.ready() — let tests register routes first.
   // Tests should use app.inject() which auto-readies, or call app.ready() manually.

@@ -40,8 +40,8 @@ describe("POST /api/auth/register", () => {
     const pool = mockPool(async () => queryResults[callIdx++]);
 
     app = await buildTestApp(pool);
-    const { default: authRoutes } = await import("../auth.js");
-    app.register(authRoutes);
+    const authModule = await import("../auth.js");
+    app.register(authModule.default as unknown as Parameters<typeof app.register>[0]);
 
     const res = await app.inject({
       method: "POST",
@@ -71,8 +71,8 @@ describe("POST /api/auth/register", () => {
     }));
 
     app = await buildTestApp(pool);
-    const { default: authRoutes } = await import("../auth.js");
-    app.register(authRoutes);
+    const authModule = await import("../auth.js");
+    app.register(authModule.default as unknown as Parameters<typeof app.register>[0]);
 
     const res = await app.inject({
       method: "POST",
@@ -86,8 +86,8 @@ describe("POST /api/auth/register", () => {
 
   it("rejects passphrase shorter than 12 chars (400)", async () => {
     app = await buildTestApp();
-    const { default: authRoutes } = await import("../auth.js");
-    app.register(authRoutes);
+    const authModule = await import("../auth.js");
+    app.register(authModule.default as unknown as Parameters<typeof app.register>[0]);
 
     const res = await app.inject({
       method: "POST",
@@ -122,8 +122,8 @@ describe("POST /api/auth/unlock", () => {
     const pool = mockPool(async () => queryResults[callIdx++]);
 
     app = await buildTestApp(pool);
-    const { default: authRoutes } = await import("../auth.js");
-    app.register(authRoutes);
+    const authModule = await import("../auth.js");
+    app.register(authModule.default as unknown as Parameters<typeof app.register>[0]);
 
     const res = await app.inject({
       method: "POST",
@@ -153,8 +153,8 @@ describe("POST /api/auth/unlock", () => {
     }));
 
     app = await buildTestApp(pool);
-    const { default: authRoutes } = await import("../auth.js");
-    app.register(authRoutes);
+    const authModule = await import("../auth.js");
+    app.register(authModule.default as unknown as Parameters<typeof app.register>[0]);
 
     const res = await app.inject({
       method: "POST",
@@ -176,8 +176,8 @@ describe("POST /api/auth/unlock", () => {
     }));
 
     app = await buildTestApp(pool);
-    const { default: authRoutes } = await import("../auth.js");
-    app.register(authRoutes);
+    const authModule = await import("../auth.js");
+    app.register(authModule.default as unknown as Parameters<typeof app.register>[0]);
 
     const res = await app.inject({
       method: "POST",

@@ -95,7 +95,7 @@ export default async function webauthnRoutes(
         : `https://${RP_ID}`;
 
       const verification = await verifyRegistrationResponse({
-        response: request.body.attestation as Parameters<typeof verifyRegistrationResponse>[0]["response"],
+        response: request.body.attestation as unknown as Parameters<typeof verifyRegistrationResponse>[0]["response"],
         expectedChallenge: storedChallenge,
         expectedOrigin,
         expectedRPID: RP_ID,
@@ -227,7 +227,7 @@ export default async function webauthnRoutes(
         : `https://${RP_ID}`;
 
       const verification = await verifyAuthenticationResponse({
-        response: request.body.response as Parameters<typeof verifyAuthenticationResponse>[0]["response"],
+        response: request.body.response as unknown as Parameters<typeof verifyAuthenticationResponse>[0]["response"],
         expectedChallenge: storedChallenge,
         expectedOrigin,
         expectedRPID: RP_ID,

@@ -35,8 +35,8 @@ describe("GET /api/auth/me", () => {
     }));
 
     app = await buildTestApp(pool);
-    const { default: authRoutes } = await import("../auth.js");
-    app.register(authRoutes);
+    const authModule = await import("../auth.js");
+    app.register(authModule.default as unknown as Parameters<typeof app.register>[0]);
 
     // Need to await ready before creating mock session
     await app.ready();
@@ -54,8 +54,8 @@ describe("GET /api/auth/me", () => {
 
   it("returns 401 without session cookie", async () => {
     app = await buildTestApp();
-    const { default: authRoutes } = await import("../auth.js");
-    app.register(authRoutes);
+    const authModule = await import("../auth.js");
+    app.register(authModule.default as unknown as Parameters<typeof app.register>[0]);
 
     const res = await app.inject({
       method: "GET",
@@ -93,8 +93,8 @@ describe("DELETE /api/auth/session", () => {
     });
 
     app = await buildTestApp(pool);
-    const { default: authRoutes } = await import("../auth.js");
-    app.register(authRoutes);
+    const authModule = await import("../auth.js");
+    app.register(authModule.default as unknown as Parameters<typeof app.register>[0]);
 
     await app.ready();
     const token = await createMockSession(app, userId, sessionId);
