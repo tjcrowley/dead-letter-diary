@@ -12,6 +12,7 @@ import cryptoRoutes from "./routes/crypto.js";
 import entriesRoutes from "./routes/entries.js";
 import deadlinePollerPlugin from "./plugins/deadline-poller.js";
 import deadlineRoutes from "./routes/deadline.js";
+import notificationsRoutes from "./routes/notifications.js";
 import { runMigrations } from "./boot/migrate.js";
 import { ensureSecrets } from "./boot/secrets.js";
 
@@ -64,6 +65,7 @@ async function start(): Promise<void> {
   fastify.register(cryptoRoutes);
   fastify.register(entriesRoutes);
   fastify.register(deadlineRoutes);
+  fastify.register(notificationsRoutes);
 
   const shutdown = async () => {
     try {

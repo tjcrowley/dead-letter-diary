@@ -1,6 +1,8 @@
 import { DateTime } from "luxon";
 import type { Pool, PoolClient } from "pg";
 import type { FastifyBaseLogger } from "fastify";
+import { sendDeadlineWarning } from "./notification-sender.js";
+import type { WebPushError } from "./notification-sender.js";
 
 /**
  * Compute a deadline timestamp in UTC from the user's IANA timezone.
@@ -207,8 +209,75 @@ export async function checkDeadlines(pool: Pool, log: FastifyBaseLogger): Promis
       }
     }
 
-    // 4. Stub notification threshold logic — Plan 02 wires the real sender
-    log.info("deadline-engine: notification threshold check (stub — Plan 02 implementation)");
+    // 4. Check notification thresholds and send push warnings
+    const activeUsers = await pool.query(
+      `SELECT user_id, deadline_at FROM deadline_state WHERE state = 'active'`
+    );
+
+    for (const userRow of activeUsers.rows) {
+      const { user_id: userId, deadline_at: deadlineAt } = userRow as {
+        user_id: string;
+        deadline_at: Date;
+      };
+
+      const minutesRemaining = Math.floor(
+        (new Date(deadlineAt).getTime() - Date.now()) / 60_000
+      );
+
+      if (minutesRemaining <= 0) continue;
+
+      // Get notification thresholds that have been crossed (i.e., minutesRemaining <= threshold_minutes)
+      // and haven't been sent yet (we track by checking if there's a recent notification)
+      const thresholdResult = await pool.query(
+        `SELECT id, threshold_minutes, tone FROM notification_thresholds
+         WHERE user_id = $1 AND threshold_minutes >= $2
+         ORDER BY threshold_minutes ASC`,
+        [userId, minutesRemaining]
+      );
+
+      // Find the most relevant threshold (closest to remaining time without being already past)
+      const matchedThresholds = (thresholdResult.rows as Array<{
+        id: string;
+        threshold_minutes: number;
+        tone: string;
+      }>).filter(
+        (t) => Math.abs(t.threshold_minutes - minutesRemaining) <= 1
+      );
+
+      if (matchedThresholds.length === 0) continue;
+
+      const threshold = matchedThresholds[0];
+
+      // Get push subscription for this user
+      const subResult = await pool.query(
+        `SELECT subscription FROM notifications WHERE user_id = $1 LIMIT 1`,
+        [userId]
+      );
+
+      if (subResult.rows.length === 0) continue;
+
+      const subscription = (subResult.rows[0] as { subscription: unknown }).subscription as {
+        endpoint: string;
+        keys: { p256dh: string; auth: string };
+      };
+
+      try {
+        await sendDeadlineWarning(subscription, threshold.threshold_minutes, threshold.tone as "gentle" | "urgent" | "final");
+        log.info({ userId, threshold: threshold.threshold_minutes, tone: threshold.tone }, "deadline-engine: sent push notification");
+      } catch (err) {
+        const wpErr = err as WebPushError;
+        if (wpErr && (wpErr.statusCode === 410 || wpErr.statusCode === 404)) {
+          // Stale subscription — delete it
+          await pool.query(
+            `DELETE FROM notifications WHERE user_id = $1 AND subscription->>'endpoint' = $2`,
+            [userId, subscription.endpoint]
+          );
+          log.info({ userId }, "deadline-engine: deleted stale push subscription (410/404)");
+        } else {
+          log.error({ userId, err }, "deadline-engine: error sending push notification");
+        }
+      }
+    }
   } catch (err) {
     log.error({ err }, "deadline-engine: unhandled error in checkDeadlines");
     throw err;

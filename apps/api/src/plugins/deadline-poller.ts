@@ -1,11 +1,14 @@
 import fp from "fastify-plugin";
 import type { FastifyInstance } from "fastify";
 import { checkDeadlines } from "../lib/deadline-engine.js";
+import { initVapid } from "../lib/notification-sender.js";
 
 async function deadlinePollerPlugin(fastify: FastifyInstance): Promise<void> {
   let intervalId: ReturnType<typeof setInterval> | undefined;
 
   fastify.addHook("onReady", async () => {
+    initVapid();
+
     intervalId = setInterval(() => {
       checkDeadlines(fastify.pg, fastify.log).catch((err) => {
         fastify.log.error({ err }, "deadline-poller: unhandled error in checkDeadlines");
