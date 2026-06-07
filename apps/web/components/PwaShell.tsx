@@ -2,6 +2,7 @@
 
 import React from "react";
 import WkWebViewGuard from "./WkWebViewGuard";
+import PrivateModeGuard from "./PrivateModeGuard";
 import InstallPrompt from "./InstallPrompt";
 import SwUpdateToast from "./SwUpdateToast";
 import EncryptionBadge from "./EncryptionBadge";
@@ -17,7 +18,9 @@ export default function PwaShell({
 }: PwaShellProps) {
   return (
     <>
-      <WkWebViewGuard>{children}</WkWebViewGuard>
+      <WkWebViewGuard>
+        <PrivateModeGuard>{children}</PrivateModeGuard>
+      </WkWebViewGuard>
       <InstallPrompt />
       <SwUpdateToast hasUnsavedText={hasUnsavedText} />
       <div

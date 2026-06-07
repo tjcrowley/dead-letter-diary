@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { callPersist } from "@/lib/storage";
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<{ outcome: string }>;
@@ -28,14 +29,23 @@ export default function InstallPrompt() {
       setDismissed(true);
     }
 
+    // Call persist on standalone launch (covers iOS Home Screen)
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      callPersist();
+    }
+
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
+      // Request persistence when install prompt is available
+      callPersist();
     };
 
     const handleAppInstalled = () => {
       setInstalled(true);
       setDeferredPrompt(null);
+      // Request persistence after app is installed
+      callPersist();
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);

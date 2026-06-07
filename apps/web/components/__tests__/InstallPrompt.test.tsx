@@ -1,6 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, act } from "@testing-library/react";
 import React from "react";
+
+// Mock the storage module for callPersist tests
+vi.mock("@/lib/storage", () => ({
+  callPersist: vi.fn().mockResolvedValue(true),
+  detectPrivateMode: vi.fn().mockResolvedValue(false),
+  getStorageInfo: vi.fn().mockResolvedValue(null),
+}));
+
+import { callPersist } from "@/lib/storage";
 import InstallPrompt from "../InstallPrompt";
 
 function setUA(ua: string) {
@@ -57,6 +66,15 @@ describe("InstallPrompt", () => {
       window.dispatchEvent(event);
     });
     expect(screen.getByText(/Install app/i)).toBeTruthy();
+  });
+
+  it("calls callPersist() when the appinstalled event fires", async () => {
+    setUA(DESKTOP_UA);
+    render(<InstallPrompt />);
+    await act(async () => {
+      window.dispatchEvent(new Event("appinstalled"));
+    });
+    expect(callPersist).toHaveBeenCalled();
   });
 
   it("does not render iOS coaching when already standalone", () => {
