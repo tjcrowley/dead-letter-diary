@@ -72,9 +72,9 @@
 
 ### Offline
 
-- [ ] **OFFLINE-01**: Write surface works without internet — entries saved to IndexedDB
-- [ ] **OFFLINE-02**: Sync queue (outbox pattern) flushes when connection restored
-- [ ] **OFFLINE-03**: Sync status indicator: "Synced" / "Saving..." / "Offline — N entries pending"
+- [x] **OFFLINE-01**: Write surface works without internet — entries saved to IndexedDB
+- [x] **OFFLINE-02**: Sync queue (outbox pattern) flushes when connection restored
+- [x] **OFFLINE-03**: Sync status indicator: "Synced" / "Saving..." / "Offline — N entries pending"
 - [ ] **OFFLINE-04**: `navigator.storage.persist()` called on PWA install
 - [ ] **OFFLINE-05**: Private/incognito mode detected → refuse to open diary with clear message
 - [ ] **OFFLINE-06**: Storage quota monitoring with compression and user-visible usage display
@@ -196,9 +196,9 @@
 | WIPE-04 | Phase 6 | Pending |
 | WIPE-05 | Phase 6 | Pending |
 | WIPE-06 | Phase 6 | Pending |
-| OFFLINE-01 | Phase 4 | Pending |
-| OFFLINE-02 | Phase 4 | Pending |
-| OFFLINE-03 | Phase 4 | Pending |
+| OFFLINE-01 | Phase 4 | Complete |
+| OFFLINE-02 | Phase 4 | Complete |
+| OFFLINE-03 | Phase 4 | Complete |
 | OFFLINE-04 | Phase 4 | Pending |
 | OFFLINE-05 | Phase 4 | Pending |
 | OFFLINE-06 | Phase 4 | Pending |

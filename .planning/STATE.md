@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-06-07T20:24:00Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-06-07T20:21:27.698Z"
 last_activity: 2026-06-07 -- Completed 04-01 PWA foundation — Serwist, service worker, manifest, guard components
 progress:
   total_phases: 7
   completed_phases: 3
-  total_plans: 10
-  completed_plans: 10
+  total_plans: 12
+  completed_plans: 11
   percent: 43
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-06)
 ## Current Position
 
 Phase: 4 of 7 (Offline PWA) -- In Progress
-Plan: 1 of 3 in current phase -- COMPLETE
+Plan: 2 of 3 in current phase -- COMPLETE
 Status: In Progress
-Last activity: 2026-06-07 -- Completed 04-01 PWA foundation — Serwist, service worker, manifest, guard components
+Last activity: 2026-06-07 -- Completed 04-02 outbox sync queue — db v2, sync.ts, SyncStatus component, write page wired
 
-Progress: [███░░░░░░░] 43%
+Progress: [█████████░] 92%
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: [███░░░░░░░] 43%
 | Phase 03-encryption-writing P03 | 3 | 2 tasks | 5 files |
 | Phase 03-encryption-writing P02 | 4 | 2 tasks | 6 files |
 | Phase 04-offline-pwa P01 | 6 | 2 tasks | 19 files |
+| Phase 04-offline-pwa P02 | 12 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -101,6 +102,8 @@ Recent decisions affecting current work:
 - [Phase 04-offline-pwa]: isApiRoute() extracted to lib/sw-route-matcher.ts for testability — sw.ts is a separate webworker compile target
 - [Phase 04-offline-pwa]: skipWaiting: false in Serwist — user-triggered updates only via SKIP_WAITING message (PWA-04)
 - [Phase 04-offline-pwa]: @vitejs/plugin-react required in vitest.config.ts for JSX parsing in .tsx test files
+- [Phase 04-offline-pwa]: OutboxEntry defined in db.ts (not sync.ts) to avoid circular import with sync.ts
+- [Phase 04-offline-pwa]: vitest.config.ts extended with @/ alias to match Next.js tsconfig paths
 
 ### Pending Todos
 
@@ -113,6 +116,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-07T20:24:00Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-06-07T20:21:27.695Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
