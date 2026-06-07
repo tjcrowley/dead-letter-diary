@@ -153,5 +153,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 3. Encryption & Writing | 3/3 | Complete   | 2026-06-07 |
 | 4. Offline & PWA | 3/3 | Complete   | 2026-06-07 |
 | 5. Dead Man's Switch | 4/4 | Complete   | 2026-06-07 |
-| 6. Wipe & Ceremony | 0/3 | Not started | - |
+| 6. Wipe & Ceremony | 1/3 | In Progress|  |
 | 7. Installer & Polish | 0/3 | Not started | - |

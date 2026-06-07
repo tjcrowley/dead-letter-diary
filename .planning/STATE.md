@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-04-PLAN.md
-last_updated: "2026-06-07T21:47:47.009Z"
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-06-07T22:44:27.727Z"
 last_activity: 2026-06-07 -- Completed 04-02 outbox sync queue — db v2, sync.ts, SyncStatus component, write page wired
 progress:
   total_phases: 7
   completed_phases: 5
-  total_plans: 16
-  completed_plans: 16
+  total_plans: 19
+  completed_plans: 17
   percent: 92
 ---
 
@@ -66,6 +66,7 @@ Progress: [█████████░] 92%
 | Phase 05-dead-mans-switch P02 | 5 | 2 tasks | 12 files |
 | Phase 05-dead-mans-switch P03 | 15 | 2 tasks | 5 files |
 | Phase 05-dead-mans-switch P04 | 2 | 2 tasks | 4 files |
+| Phase 06-wipe-and-ceremony P01 | 12 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -121,6 +122,9 @@ Recent decisions affecting current work:
 - [Phase 05-dead-mans-switch]: Mixed Akrasia axis logic: each axis evaluated independently — word_minimum strengthening writes immediately even when window_hours weakens; up to 2 UPDATE statements
 - [Phase 05-dead-mans-switch]: Grace budget reset uses Luxon rolling 7-day window (diff >= 7 days from grace_used_at), not Mon-Sun calendar week
 - [Phase 05-dead-mans-switch]: notification_thresholds columns are threshold_minutes (INT) and tone (TEXT) — not hours_before/label/urgency
+- [Phase 06-wipe-and-ceremony]: sendWipeNotification called after COMMIT in both checkDeadlines and panic route — push is best-effort and must not hold DB locks
+- [Phase 06-wipe-and-ceremony]: Panic wipe sets confirmed_at=now() immediately (no 60s settle window) — wipe_log has both initiated_at and confirmed_at set in single INSERT
+- [Phase 06-wipe-and-ceremony]: 409 returned for both missing deadline_state row and non-active state — unified non-active error response in panic route
 
 ### Pending Todos
 
@@ -133,6 +137,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-07T21:44:42.445Z
-Stopped at: Completed 05-04-PLAN.md
+Last session: 2026-06-07T22:44:15.935Z
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None
