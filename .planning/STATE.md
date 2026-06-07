@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-06-07T22:44:27.727Z"
+stopped_at: Completed 06-03-PLAN.md
+last_updated: "2026-06-07T22:48:57.691Z"
 last_activity: 2026-06-07 -- Completed 04-02 outbox sync queue — db v2, sync.ts, SyncStatus component, write page wired
 progress:
   total_phases: 7
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 19
-  completed_plans: 17
+  completed_plans: 19
   percent: 92
 ---
 
@@ -67,6 +67,8 @@ Progress: [█████████░] 92%
 | Phase 05-dead-mans-switch P03 | 15 | 2 tasks | 5 files |
 | Phase 05-dead-mans-switch P04 | 2 | 2 tasks | 4 files |
 | Phase 06-wipe-and-ceremony P01 | 12 | 2 tasks | 6 files |
+| Phase 06-wipe-and-ceremony P03 | 2 | 2 tasks | 6 files |
+| Phase 06-wipe-and-ceremony P02 | 18 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -125,6 +127,11 @@ Recent decisions affecting current work:
 - [Phase 06-wipe-and-ceremony]: sendWipeNotification called after COMMIT in both checkDeadlines and panic route — push is best-effort and must not hold DB locks
 - [Phase 06-wipe-and-ceremony]: Panic wipe sets confirmed_at=now() immediately (no 60s settle window) — wipe_log has both initiated_at and confirmed_at set in single INSERT
 - [Phase 06-wipe-and-ceremony]: 409 returned for both missing deadline_state row and non-active state — unified non-active error response in panic route
+- [Phase 06-wipe-and-ceremony]: rowCount === 0 on UPDATE users SET epitaph WHERE epitaph IS NULL is the immutability guard — SQL atomically enforces single-write constraint
+- [Phase 06-wipe-and-ceremony]: server_shards moved to shards PostgreSQL schema via migration 002; pg_dump --exclude-schema=shards excludes it from all backups
+- [Phase 06-wipe-and-ceremony]: backup.sh uses set -euo pipefail so any missing env var or pg_dump failure exits loudly — explicit failure by design
+- [Phase 06-wipe-and-ceremony]: SW wipe branch navigates clients to /wiped BEFORE indexedDB.deleteDatabase to prevent onblocked deadlock from open connections
+- [Phase 06-wipe-and-ceremony]: performClientWipe wraps db.delete() in try/catch — safe to call repeatedly; DeadlineBanner redirects in fetchDeadline callback before setDeadlineState
 
 ### Pending Todos
 
@@ -137,6 +144,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-07T22:44:15.935Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-06-07T22:48:44.130Z
+Stopped at: Completed 06-03-PLAN.md
 Resume file: None

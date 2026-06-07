@@ -66,7 +66,7 @@
 - [x] **WIPE-01**: Server deletes shard when deadline passes — data is cryptographically dead at that instant
 - [ ] **WIPE-02**: Client receives wipe push → clears IndexedDB, caches, cookies
 - [ ] **WIPE-03**: Final UI: blank screen with only the diary title — decoy "as if it never happened" state
-- [ ] **WIPE-04**: Optional diary epitaph (set at creation, immutable) displayed on wipe screen
+- [x] **WIPE-04**: Optional diary epitaph (set at creation, immutable) displayed on wipe screen
 - [x] **WIPE-05**: Panic encrypt: on-demand immediate wipe button in settings (with confirmation)
 - [ ] **WIPE-06**: Client checks wipe log on every session start — shows blank state if wiped
 
@@ -104,8 +104,8 @@
 - [ ] **INST-04**: System service integration: launchd plist (macOS), systemd user unit (Linux)
 - [x] **INST-05**: First-run auto-generates all secrets (VAPID keys, session secret, shard encryption key)
 - [x] **INST-06**: `.env.example` only — `.env` in `.gitignore` from commit zero
-- [ ] **INST-07**: Server shards in separate PostgreSQL schema excluded from backups
-- [ ] **INST-08**: Opinionated `backup.sh` that explicitly excludes shards schema
+- [x] **INST-07**: Server shards in separate PostgreSQL schema excluded from backups
+- [x] **INST-08**: Opinionated `backup.sh` that explicitly excludes shards schema
 - [x] **INST-09**: Named Docker volumes with prominent warnings about `docker compose down -v`
 - [x] **INST-10**: HTTPS-only boot check — refuse to start on `http://` (except localhost)
 
@@ -193,7 +193,7 @@
 | WIPE-01 | Phase 6 | Complete |
 | WIPE-02 | Phase 6 | Pending |
 | WIPE-03 | Phase 6 | Pending |
-| WIPE-04 | Phase 6 | Pending |
+| WIPE-04 | Phase 6 | Complete |
 | WIPE-05 | Phase 6 | Complete |
 | WIPE-06 | Phase 6 | Pending |
 | OFFLINE-01 | Phase 4 | Complete |
@@ -219,8 +219,8 @@
 | INST-04 | Phase 7 | Pending |
 | INST-05 | Phase 1 | Complete |
 | INST-06 | Phase 1 | Complete |
-| INST-07 | Phase 6 | Pending |
-| INST-08 | Phase 6 | Pending |
+| INST-07 | Phase 6 | Complete |
+| INST-08 | Phase 6 | Complete |
 | INST-09 | Phase 1 | Complete |
 | INST-10 | Phase 1 | Complete |
 
