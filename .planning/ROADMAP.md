@@ -35,9 +35,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Docker Compose, Caddy, and database schema
-- [ ] 01-02: Fastify API skeleton and Next.js app shell
-- [ ] 01-03: Secret generation and HTTPS boot check
+- [x] 01-01: Docker Compose, Caddy, and database schema
+- [x] 01-02: Fastify API skeleton and Next.js app shell
+- [x] 01-03: Secret generation and HTTPS boot check
 
 ### Phase 2: Auth & WebAuthn
 **Goal**: Users can create an account and unlock their diary with biometric, passphrase, or PIN
@@ -49,12 +49,12 @@ Plans:
   3. User can unlock the diary with biometric (Face ID, Touch ID, Windows Hello) and passphrase/PIN fallback is always visible
   4. Session persists across browser refresh without re-authentication
   5. Server rejects WebAuthn assertions that lack biometric confirmation (UV flag)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: Account creation and passphrase auth
-- [ ] 02-02: WebAuthn registration, assertion, and PRF extension
-- [ ] 02-03: PIN unlock, session persistence, and UV verification
+- [ ] 02-01-PLAN.md — Auth plugin, account creation, passphrase unlock, vitest setup
+- [ ] 02-02-PLAN.md — WebAuthn registration, authentication, PRF, UV verification
+- [ ] 02-03-PLAN.md — Frontend setup/unlock pages, WebAuthn browser ceremony, PIN
 
 ### Phase 3: Encryption & Writing
 **Goal**: Diary entries are end-to-end encrypted with split-key architecture and the write surface works
