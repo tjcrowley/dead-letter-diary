@@ -8,12 +8,12 @@
 ### Authentication
 
 - [x] **AUTH-01**: User can create account with passphrase during first-run setup
-- [ ] **AUTH-02**: User can register a WebAuthn passkey (biometric or hardware key) with PRF extension
-- [ ] **AUTH-03**: User can unlock the diary with biometric (Face ID, Touch ID, Windows Hello, fingerprint)
+- [x] **AUTH-02**: User can register a WebAuthn passkey (biometric or hardware key) with PRF extension
+- [x] **AUTH-03**: User can unlock the diary with biometric (Face ID, Touch ID, Windows Hello, fingerprint)
 - [x] **AUTH-04**: User can unlock with passphrase as fallback when PRF is unavailable
 - [ ] **AUTH-05**: User can set a PIN for quick unlock (UI lockout layer, not a key source)
 - [ ] **AUTH-06**: Passphrase/PIN fallback is always visible alongside biometric prompt
-- [ ] **AUTH-07**: Server-side UV flag verification rejects assertions without biometric confirmation
+- [x] **AUTH-07**: Server-side UV flag verification rejects assertions without biometric confirmation
 - [x] **AUTH-08**: Session persists across browser refresh (JWT or secure cookie)
 
 ### Encryption
@@ -150,12 +150,12 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | AUTH-01 | Phase 2 | Complete |
-| AUTH-02 | Phase 2 | Pending |
-| AUTH-03 | Phase 2 | Pending |
+| AUTH-02 | Phase 2 | Complete |
+| AUTH-03 | Phase 2 | Complete |
 | AUTH-04 | Phase 2 | Complete |
 | AUTH-05 | Phase 2 | Pending |
 | AUTH-06 | Phase 2 | Pending |
-| AUTH-07 | Phase 2 | Pending |
+| AUTH-07 | Phase 2 | Complete |
 | AUTH-08 | Phase 2 | Complete |
 | CRYPT-01 | Phase 3 | Pending |
 | CRYPT-02 | Phase 3 | Pending |
