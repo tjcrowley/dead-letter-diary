@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { performClientWipe } from "@/lib/wipe";
 
 interface DeadlineState {
   state: "active" | "pending_wipe" | "wiped";
@@ -62,6 +64,7 @@ const colorClasses = {
 };
 
 export default function DeadlineBanner() {
+  const router = useRouter();
   const [deadlineState, setDeadlineState] = useState<DeadlineState | null>(null);
   const [notFound, setNotFound] = useState(false);
 
@@ -76,6 +79,15 @@ export default function DeadlineBanner() {
         return;
       }
       const data = (await res.json()) as DeadlineState;
+
+      // Wipe detected — trigger client wipe and navigate before updating state
+      if (data.state === "wiped") {
+        void performClientWipe().then(() => {
+          router.replace("/wiped");
+        });
+        return;
+      }
+
       setDeadlineState(data);
       setNotFound(false);
     } catch {
@@ -98,9 +110,6 @@ export default function DeadlineBanner() {
 
   // No data yet (initial load)
   if (!deadlineState) return null;
-
-  // Wiped state — Phase 6 handles wipe screen
-  if (deadlineState.state === "wiped") return null;
 
   if (deadlineState.state === "pending_wipe") {
     return (
