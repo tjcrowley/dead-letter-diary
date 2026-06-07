@@ -376,4 +376,275 @@ describe("Deadline routes", () => {
       expect(hasForUpdate).toBe(true);
     });
   });
+
+  describe("POST /api/deadline/grace", () => {
+    it("returns 401 without authentication", async () => {
+      await buildApp(async () => ({
+        rows: [],
+        command: "SELECT",
+        rowCount: 0,
+        oid: 0,
+        fields: [],
+      }));
+
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/deadline/grace",
+      });
+
+      expect(res.statusCode).toBe(401);
+    });
+
+    it("returns 404 when no deadline_state row exists", async () => {
+      let callIdx = 0;
+      const responses: QueryResult<QueryResultRow>[] = [
+        { rows: [{ id: "session-1" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+        { rows: [], command: "BEGIN", rowCount: 0, oid: 0, fields: [] },
+        { rows: [], command: "SELECT", rowCount: 0, oid: 0, fields: [] },
+        { rows: [], command: "ROLLBACK", rowCount: 0, oid: 0, fields: [] },
+      ];
+
+      await buildApp(async () => responses[callIdx++]);
+      const token = await createMockSession(app, "user-123");
+
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/deadline/grace",
+        cookies: { session: token },
+      });
+
+      expect(res.statusCode).toBe(404);
+    });
+
+    it("returns 409 when state is pending_wipe", async () => {
+      let callIdx = 0;
+      const responses: QueryResult<QueryResultRow>[] = [
+        { rows: [{ id: "session-1" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+        { rows: [], command: "BEGIN", rowCount: 0, oid: 0, fields: [] },
+        {
+          rows: [{ state: "pending_wipe", deadline_at: new Date(), grace_budget: 1, grace_used_at: null }],
+          command: "SELECT",
+          rowCount: 1,
+          oid: 0,
+          fields: [],
+        },
+        { rows: [], command: "ROLLBACK", rowCount: 0, oid: 0, fields: [] },
+      ];
+
+      await buildApp(async () => responses[callIdx++]);
+      const token = await createMockSession(app, "user-123");
+
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/deadline/grace",
+        cookies: { session: token },
+      });
+
+      expect(res.statusCode).toBe(409);
+    });
+
+    it("returns 429 when grace_budget=0 and grace_used_at within last 7 days", async () => {
+      const oneDayAgo = new Date(Date.now() - 1 * 24 * 3600 * 1000);
+
+      let callIdx = 0;
+      const responses: QueryResult<QueryResultRow>[] = [
+        { rows: [{ id: "session-1" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+        { rows: [], command: "BEGIN", rowCount: 0, oid: 0, fields: [] },
+        {
+          rows: [{ state: "active", deadline_at: new Date(Date.now() + 24 * 3600 * 1000), grace_budget: 0, grace_used_at: oneDayAgo }],
+          command: "SELECT",
+          rowCount: 1,
+          oid: 0,
+          fields: [],
+        },
+        { rows: [], command: "ROLLBACK", rowCount: 0, oid: 0, fields: [] },
+      ];
+
+      await buildApp(async () => responses[callIdx++]);
+      const token = await createMockSession(app, "user-123");
+
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/deadline/grace",
+        cookies: { session: token },
+      });
+
+      expect(res.statusCode).toBe(429);
+      const body = res.json();
+      expect(body.error).toContain("Grace budget exhausted");
+    });
+
+    it("returns 200 and extends deadline when grace_used_at is over 7 days ago (budget reset)", async () => {
+      const eightDaysAgo = new Date(Date.now() - 8 * 24 * 3600 * 1000);
+      const sqlCalls: string[] = [];
+
+      let callIdx = 0;
+      const responses: QueryResult<QueryResultRow>[] = [
+        { rows: [{ id: "session-1" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+        { rows: [], command: "BEGIN", rowCount: 0, oid: 0, fields: [] },
+        {
+          rows: [{ state: "active", deadline_at: new Date(Date.now() + 24 * 3600 * 1000), grace_budget: 0, grace_used_at: eightDaysAgo }],
+          command: "SELECT",
+          rowCount: 1,
+          oid: 0,
+          fields: [],
+        },
+        { rows: [], command: "UPDATE", rowCount: 1, oid: 0, fields: [] },
+        { rows: [], command: "COMMIT", rowCount: 0, oid: 0, fields: [] },
+      ];
+
+      await buildApp(async (text) => {
+        sqlCalls.push(text);
+        return responses[callIdx++];
+      });
+      const token = await createMockSession(app, "user-123");
+
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/deadline/grace",
+        cookies: { session: token },
+      });
+
+      expect(res.statusCode).toBe(200);
+      const hasUpdate = sqlCalls.some((sql) => sql.includes("UPDATE"));
+      expect(hasUpdate).toBe(true);
+      const body = res.json();
+      expect(body.new_deadline_at).toBeDefined();
+      expect(body.grace_budget).toBe(0);
+    });
+
+    it("returns 200 when grace_budget=1, sets grace_budget=0 in UPDATE and uses FOR UPDATE lock", async () => {
+      const sqlCalls: string[] = [];
+
+      let callIdx = 0;
+      const responses: QueryResult<QueryResultRow>[] = [
+        { rows: [{ id: "session-1" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+        { rows: [], command: "BEGIN", rowCount: 0, oid: 0, fields: [] },
+        {
+          rows: [{ state: "active", deadline_at: new Date(Date.now() + 24 * 3600 * 1000), grace_budget: 1, grace_used_at: null }],
+          command: "SELECT",
+          rowCount: 1,
+          oid: 0,
+          fields: [],
+        },
+        { rows: [], command: "UPDATE", rowCount: 1, oid: 0, fields: [] },
+        { rows: [], command: "COMMIT", rowCount: 0, oid: 0, fields: [] },
+      ];
+
+      await buildApp(async (text) => {
+        sqlCalls.push(text);
+        return responses[callIdx++];
+      });
+      const token = await createMockSession(app, "user-123");
+
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/deadline/grace",
+        cookies: { session: token },
+      });
+
+      expect(res.statusCode).toBe(200);
+      const hasForUpdate = sqlCalls.some((sql) => sql.includes("FOR UPDATE"));
+      expect(hasForUpdate).toBe(true);
+      const hasUpdate = sqlCalls.some((sql) => sql.includes("UPDATE"));
+      expect(hasUpdate).toBe(true);
+      const body = res.json();
+      expect(body.grace_budget).toBe(0);
+      expect(body.message).toBeDefined();
+    });
+  });
+
+  describe("POST /api/deadline/settings — additional Akrasia tests", () => {
+    it("weakening word_minimum sets pending fields, does NOT update word_minimum directly", async () => {
+      const userId = "user-123";
+      const updateCalls: { text: string; values?: unknown[] }[] = [];
+
+      let callIdx = 0;
+      const responses: QueryResult<QueryResultRow>[] = [
+        { rows: [{ id: "session-1" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+        {
+          rows: [{
+            state: "active",
+            window_hours: 24,
+            word_minimum: 100,
+            deadline_at: new Date(Date.now() + 24 * 3600 * 1000),
+          }],
+          command: "SELECT",
+          rowCount: 1,
+          oid: 0,
+          fields: [],
+        },
+        { rows: [], command: "UPDATE", rowCount: 1, oid: 0, fields: [] },
+      ];
+
+      await buildApp(async (text, values) => {
+        if (text.includes("UPDATE")) updateCalls.push({ text, values });
+        return responses[callIdx++];
+      });
+
+      const token = await createMockSession(app, userId);
+
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/deadline/settings",
+        cookies: { session: token },
+        payload: { word_minimum: 50 },
+      });
+
+      expect(res.statusCode).toBe(200);
+      const akrasiaUpdate = updateCalls.find(
+        (c) => c.text.includes("pending_word_minimum") && c.text.includes("pending_effective_at")
+      );
+      expect(akrasiaUpdate).toBeDefined();
+    });
+
+    it("mixed (weaker window, stronger word_minimum) — applies word_minimum immediately and sets pending_window_hours", async () => {
+      const userId = "user-123";
+      const updateCalls: { text: string; values?: unknown[] }[] = [];
+
+      let callIdx = 0;
+      const responses: QueryResult<QueryResultRow>[] = [
+        { rows: [{ id: "session-1" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+        {
+          rows: [{
+            state: "active",
+            window_hours: 24,
+            word_minimum: 50,
+            deadline_at: new Date(Date.now() + 24 * 3600 * 1000),
+          }],
+          command: "SELECT",
+          rowCount: 1,
+          oid: 0,
+          fields: [],
+        },
+        // UPDATE for immediate strengthening (word_minimum)
+        { rows: [], command: "UPDATE", rowCount: 1, oid: 0, fields: [] },
+        // UPDATE for pending weakening (window_hours)
+        { rows: [], command: "UPDATE", rowCount: 1, oid: 0, fields: [] },
+      ];
+
+      await buildApp(async (text, values) => {
+        if (text.includes("UPDATE")) updateCalls.push({ text, values });
+        return responses[callIdx++];
+      });
+
+      const token = await createMockSession(app, userId);
+
+      // Mixed: weaker window (48h > 24h), stronger word_minimum (100 > 50)
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/deadline/settings",
+        cookies: { session: token },
+        payload: { window_hours: 48, word_minimum: 100 },
+      });
+
+      expect(res.statusCode).toBe(200);
+      const hasPendingWindow = updateCalls.some((c) => c.text.includes("pending_window_hours"));
+      const hasImmediateWordMin = updateCalls.some(
+        (c) => c.text.includes("word_minimum") && !c.text.includes("pending_word_minimum")
+      );
+      expect(hasPendingWindow).toBe(true);
+      expect(hasImmediateWordMin).toBe(true);
+    });
+  });
 });

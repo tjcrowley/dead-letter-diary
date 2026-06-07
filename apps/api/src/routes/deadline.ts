@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { requireAuth } from "../middleware/requireAuth.js";
 import { computeDeadlineUTC } from "../lib/deadline-engine.js";
+import { DateTime } from "luxon";
 
 interface DeadlineSettingsBody {
   window_hours?: number;
@@ -121,18 +122,35 @@ export default async function deadlineRoutes(fastify: FastifyInstance): Promise<
       const windowWeakening = newWindowHours > current.window_hours;
       const wordMinimumWeakening = newWordMinimum < current.word_minimum;
 
+      // Handle each axis independently — stronger applies immediately, weaker goes pending
+      if (windowStrengthening || wordMinimumStrengthening) {
+        // Immediate update for strengthening axes
+        const immediateWindowHours = windowStrengthening ? newWindowHours : current.window_hours;
+        const immediateWordMinimum = wordMinimumStrengthening ? newWordMinimum : current.word_minimum;
+        await fastify.pg.query(
+          `UPDATE deadline_state
+           SET window_hours = $1, word_minimum = $2, updated_at = now()
+           WHERE user_id = $3`,
+          [immediateWindowHours, immediateWordMinimum, userId]
+        );
+      }
+
       if (windowWeakening || wordMinimumWeakening) {
         // Weakening: set pending_* with 7-day delay
         const pendingEffectiveAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        const pendingWindowHours = windowWeakening ? newWindowHours : null;
+        const pendingWordMinimum = wordMinimumWeakening ? newWordMinimum : null;
         await fastify.pg.query(
           `UPDATE deadline_state
            SET pending_window_hours = $1, pending_word_minimum = $2,
                pending_effective_at = $3, updated_at = now()
            WHERE user_id = $4`,
-          [newWindowHours, newWordMinimum, pendingEffectiveAt, userId]
+          [pendingWindowHours, pendingWordMinimum, pendingEffectiveAt, userId]
         );
-      } else {
-        // Strengthening or no change: write immediately
+      }
+
+      if (!windowStrengthening && !wordMinimumStrengthening && !windowWeakening && !wordMinimumWeakening) {
+        // No change — write immediately as a no-op
         await fastify.pg.query(
           `UPDATE deadline_state
            SET window_hours = $1, word_minimum = $2, updated_at = now()
@@ -142,6 +160,91 @@ export default async function deadlineRoutes(fastify: FastifyInstance): Promise<
       }
 
       return reply.status(200).send({ ok: true });
+    }
+  );
+
+  /**
+   * POST /api/deadline/grace
+   * Invokes a grace day: extends deadline_at by 24 hours.
+   * Uses SELECT ... FOR UPDATE to prevent race with the poller (DMS-07).
+   * Grace budget is weekly (resets after 7 days from last use).
+   * Returns 409 if state != 'active'.
+   * Returns 429 if budget exhausted for this week.
+   */
+  fastify.post(
+    "/api/deadline/grace",
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const userId = request.userId;
+
+      const client = await fastify.pg.connect();
+      try {
+        await client.query("BEGIN");
+
+        // Lock the deadline_state row
+        const dsResult = await client.query(
+          `SELECT state, deadline_at, grace_budget, grace_used_at
+           FROM deadline_state WHERE user_id = $1 FOR UPDATE`,
+          [userId]
+        );
+
+        if (dsResult.rows.length === 0) {
+          await client.query("ROLLBACK");
+          return reply.status(404).send({ error: "Deadline not configured" });
+        }
+
+        const ds = dsResult.rows[0] as {
+          state: string;
+          deadline_at: Date;
+          grace_budget: number;
+          grace_used_at: Date | null;
+        };
+
+        if (ds.state !== "active") {
+          await client.query("ROLLBACK");
+          return reply.status(409).send({ error: "Cannot invoke grace day on inactive deadline", state: ds.state });
+        }
+
+        // Compute effective budget with 7-day reset
+        const now = DateTime.utc();
+        const lastGrace = ds.grace_used_at
+          ? DateTime.fromJSDate(ds.grace_used_at, { zone: "utc" })
+          : null;
+        const budgetReset = !lastGrace || now.diff(lastGrace, "days").days >= 7;
+        const effectiveBudget = budgetReset ? 1 : ds.grace_budget;
+
+        if (effectiveBudget < 1) {
+          await client.query("ROLLBACK");
+          return reply.status(429).send({ error: "Grace budget exhausted for this week" });
+        }
+
+        // Extend deadline by 24h, record grace use
+        await client.query(
+          `UPDATE deadline_state
+           SET deadline_at = deadline_at + INTERVAL '24 hours',
+               grace_used_at = now(),
+               grace_budget = 0,
+               updated_at = now()
+           WHERE user_id = $1`,
+          [userId]
+        );
+
+        // Compute new deadline for response
+        const newDeadlineAt = new Date(ds.deadline_at.getTime() + 24 * 60 * 60 * 1000);
+
+        await client.query("COMMIT");
+
+        return reply.status(200).send({
+          new_deadline_at: newDeadlineAt,
+          grace_budget: 0,
+          message: "Grace day applied. Deadline extended by 24 hours.",
+        });
+      } catch (err) {
+        await client.query("ROLLBACK");
+        throw err;
+      } finally {
+        client.release();
+      }
     }
   );
 
