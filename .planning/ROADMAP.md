@@ -117,12 +117,12 @@ Plans:
   3. User can set an immutable diary epitaph at creation time that displays on the wipe screen
   4. Panic encrypt button in settings triggers immediate wipe with confirmation dialog
   5. Server shards live in a separate PostgreSQL schema excluded from backups, with an opinionated backup script
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 06-01: Two-phase shard deletion and wipe log
-- [ ] 06-02: Client cleanup and wipe ceremony UI
-- [ ] 06-03: Panic encrypt and shard backup exclusion
+- [ ] 06-01-PLAN.md — sendWipeNotification hook in checkDeadlines + POST /api/wipe/panic route
+- [ ] 06-02-PLAN.md — performClientWipe lib, SW type:'wipe' handler, /wiped page, PanicEncryptButton, DeadlineBanner wipe guard
+- [ ] 06-03-PLAN.md — Epitaph API routes, shard schema migration (002), server_shards query updates, backup.sh
 
 ### Phase 7: Installer & Polish
 **Goal**: A non-technical user can install Dead Letter Diary on their machine with one command, and the app feels complete
