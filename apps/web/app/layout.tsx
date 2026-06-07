@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import PwaShell from "../components/PwaShell";
 
 export const metadata: Metadata = {
   title: "Dead Letter Diary",
@@ -12,6 +13,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      </head>
       <body
         style={{
           margin: 0,
@@ -23,7 +27,7 @@ export default function RootLayout({
           minHeight: "100vh",
         }}
       >
-        {children}
+        <PwaShell hasUnsavedText={false}>{children}</PwaShell>
       </body>
     </html>
   );
