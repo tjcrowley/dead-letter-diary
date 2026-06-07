@@ -120,6 +120,8 @@ describe("Crypto routes", () => {
       const queryResults: QueryResult<QueryResultRow>[] = [
         // requireAuth: session lookup
         { rows: [{ id: "session-1" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+        // SELECT existing shard → none
+        { rows: [], command: "SELECT", rowCount: 0, oid: 0, fields: [] },
         // INSERT into server_shards
         { rows: [{ id: "shard-1" }], command: "INSERT", rowCount: 1, oid: 0, fields: [] },
       ];
@@ -152,6 +154,70 @@ describe("Crypto routes", () => {
       const storedShard = insertCalls[0][1] as Buffer;
       // Encrypted shard should be longer than raw (iv + authTag + ciphertext)
       expect(storedShard.length).toBeGreaterThan(rawShard.length);
+    });
+
+    it("returns 409 when a different shard already exists (CRYPT-10: timingSafeEqual)", async () => {
+      const userId = "user-123";
+      const existingShard = crypto.randomBytes(32);
+      const newShard = crypto.randomBytes(32);
+      const encryptedExisting = encryptShardForDb(existingShard);
+
+      const queryResults: QueryResult<QueryResultRow>[] = [
+        // requireAuth: session lookup
+        { rows: [{ id: "session-1" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+        // SELECT existing shard
+        { rows: [{ shard: encryptedExisting }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+      ];
+      let callIdx = 0;
+      const pool = mockPool(async () => queryResults[callIdx++]);
+
+      app = await buildTestApp(pool);
+      const cryptoModule = await import("../crypto.js");
+      app.register(cryptoModule.default as unknown as Parameters<typeof app.register>[0]);
+      await app.ready();
+
+      const token = await createMockSession(app, userId);
+
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/crypto/shard",
+        cookies: { session: token },
+        payload: { shard: newShard.toString("base64url") },
+      });
+
+      expect(res.statusCode).toBe(409);
+    });
+
+    it("returns 200 when submitting the same shard (CRYPT-10: timingSafeEqual)", async () => {
+      const userId = "user-123";
+      const rawShard = crypto.randomBytes(32);
+      const encryptedExisting = encryptShardForDb(rawShard);
+
+      const queryResults: QueryResult<QueryResultRow>[] = [
+        // requireAuth: session lookup
+        { rows: [{ id: "session-1" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+        // SELECT existing shard
+        { rows: [{ shard: encryptedExisting }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+      ];
+      let callIdx = 0;
+      const pool = mockPool(async () => queryResults[callIdx++]);
+
+      app = await buildTestApp(pool);
+      const cryptoModule = await import("../crypto.js");
+      app.register(cryptoModule.default as unknown as Parameters<typeof app.register>[0]);
+      await app.ready();
+
+      const token = await createMockSession(app, userId);
+
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/crypto/shard",
+        cookies: { session: token },
+        payload: { shard: rawShard.toString("base64url") },
+      });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json().existing).toBe(true);
     });
   });
 

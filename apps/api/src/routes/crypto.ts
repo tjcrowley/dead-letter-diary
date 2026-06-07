@@ -90,8 +90,24 @@ export default async function cryptoRoutes(
     async (request: FastifyRequest<{ Body: ShardBody }>, reply: FastifyReply) => {
       const { shard } = request.body;
       const shardBuf = Buffer.from(shard, "base64url");
-      const encryptedShard = encryptShard(shardBuf);
 
+      const existing = await fastify.pg.query(
+        "SELECT shard FROM server_shards WHERE user_id = $1",
+        [request.userId]
+      );
+
+      if (existing.rows.length > 0) {
+        const existingDecrypted = decryptShard(existing.rows[0].shard as Buffer);
+        if (
+          shardBuf.length === existingDecrypted.length &&
+          crypto.timingSafeEqual(shardBuf, existingDecrypted)
+        ) {
+          return reply.status(200).send({ ok: true, existing: true });
+        }
+        return reply.status(409).send({ error: "Shard already exists for this user" });
+      }
+
+      const encryptedShard = encryptShard(shardBuf);
       await fastify.pg.query(
         "INSERT INTO server_shards (user_id, shard) VALUES ($1, $2) RETURNING id",
         [request.userId, encryptedShard]
