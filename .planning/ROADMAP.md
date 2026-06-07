@@ -13,7 +13,7 @@ Dead Letter Diary is a PWA diary with a cryptographic dead man's switch. The bui
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Project scaffold, Docker Compose, database schema, Caddy HTTPS, API skeleton (completed 2026-06-07)
-- [ ] **Phase 2: Auth & WebAuthn** - Account creation, WebAuthn passkey enrollment, biometric/passphrase unlock, sessions
+- [x] **Phase 2: Auth & WebAuthn** - Account creation, WebAuthn passkey enrollment, biometric/passphrase unlock, sessions (completed 2026-06-07)
 - [ ] **Phase 3: Encryption & Writing** - Key derivation, shard split, DMK, encrypted write surface with live word count
 - [ ] **Phase 4: Offline & PWA** - Service Worker, IndexedDB persistence, sync queue, installable PWA shell
 - [ ] **Phase 5: Dead Man's Switch** - Deadline state machine, check-in validation, grace days, push notifications
@@ -149,7 +149,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-06-07 |
-| 2. Auth & WebAuthn | 2/3 | In Progress|  |
+| 2. Auth & WebAuthn | 3/3 | Complete   | 2026-06-07 |
 | 3. Encryption & Writing | 0/3 | Not started | - |
 | 4. Offline & PWA | 0/3 | Not started | - |
 | 5. Dead Man's Switch | 0/3 | Not started | - |
