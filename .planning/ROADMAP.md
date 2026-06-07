@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Offline & PWA** - Service Worker, IndexedDB persistence, sync queue, installable PWA shell (completed 2026-06-07)
 - [x] **Phase 5: Dead Man's Switch** - Deadline state machine, check-in validation, grace days, push notifications (completed 2026-06-07)
 - [x] **Phase 6: Wipe & Ceremony** - Shard deletion, wipe log, client cleanup, wipe UI, panic encrypt (completed 2026-06-07)
-- [ ] **Phase 7: Installer & Polish** - System service, mkcert setup, first-run ritual, streaks, settings, past entries
+- [x] **Phase 7: Installer & Polish** - System service, mkcert setup, first-run ritual, streaks, settings, past entries (completed 2026-06-07)
 
 ## Phase Details
 
@@ -137,9 +137,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 07-01-PLAN.md — Installer script (install.sh) and system service manifests (launchd plist + systemd unit)
-- [ ] 07-02-PLAN.md — Extended first-run setup ritual, settings page, and streak counter (Wave 2, parallel with 07-03)
-- [ ] 07-03-PLAN.md — Past entries browser with client-side decryption (Wave 2, parallel with 07-02)
+- [x] 07-01-PLAN.md — Installer script (install.sh) and system service manifests (launchd plist + systemd unit)
+- [x] 07-02-PLAN.md — Extended first-run setup ritual, settings page, and streak counter (Wave 2, parallel with 07-03)
+- [x] 07-03-PLAN.md — Past entries browser with client-side decryption (Wave 2, parallel with 07-02)
 
 ## Progress
 
@@ -154,4 +154,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 4. Offline & PWA | 3/3 | Complete   | 2026-06-07 |
 | 5. Dead Man's Switch | 4/4 | Complete   | 2026-06-07 |
 | 6. Wipe & Ceremony | 3/3 | Complete   | 2026-06-07 |
-| 7. Installer & Polish | 1/3 | In Progress|  |
+| 7. Installer & Polish | 3/3 | Complete   | 2026-06-07 |
