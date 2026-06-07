@@ -18,15 +18,15 @@
 
 ### Encryption
 
-- [ ] **CRYPT-01**: Diary Master Key (DMK) generated at account creation (32 bytes random)
-- [ ] **CRYPT-02**: DMK wrapped with AES-GCM using wrap_key derived from HKDF(device_shard XOR server_shard)
-- [ ] **CRYPT-03**: Device shard derived from WebAuthn PRF output (or Argon2id from passphrase as fallback)
+- [x] **CRYPT-01**: Diary Master Key (DMK) generated at account creation (32 bytes random)
+- [x] **CRYPT-02**: DMK wrapped with AES-GCM using wrap_key derived from HKDF(device_shard XOR server_shard)
+- [x] **CRYPT-03**: Device shard derived from WebAuthn PRF output (or Argon2id from passphrase as fallback)
 - [ ] **CRYPT-04**: Server shard stored in PostgreSQL, returned only to authenticated sessions in good standing
-- [ ] **CRYPT-05**: All diary entries encrypted with AES-GCM 256 using DMK
-- [ ] **CRYPT-06**: Fresh random IV (12 bytes) per encryption operation — never reused
-- [ ] **CRYPT-07**: Entry metadata (entry_id, user_id, word_count) bound as AES-GCM AAD
-- [ ] **CRYPT-08**: DMK held as non-extractable CryptoKey in memory during session — never serialized
-- [ ] **CRYPT-09**: Per-user random HKDF salt (32 bytes) stored at registration
+- [x] **CRYPT-05**: All diary entries encrypted with AES-GCM 256 using DMK
+- [x] **CRYPT-06**: Fresh random IV (12 bytes) per encryption operation — never reused
+- [x] **CRYPT-07**: Entry metadata (entry_id, user_id, word_count) bound as AES-GCM AAD
+- [x] **CRYPT-08**: DMK held as non-extractable CryptoKey in memory during session — never serialized
+- [x] **CRYPT-09**: Per-user random HKDF salt (32 bytes) stored at registration
 - [ ] **CRYPT-10**: All shard/token/challenge comparisons use crypto.timingSafeEqual()
 
 ### Writing
@@ -157,15 +157,15 @@
 | AUTH-06 | Phase 2 | Complete |
 | AUTH-07 | Phase 2 | Complete |
 | AUTH-08 | Phase 2 | Complete |
-| CRYPT-01 | Phase 3 | Pending |
-| CRYPT-02 | Phase 3 | Pending |
-| CRYPT-03 | Phase 3 | Pending |
+| CRYPT-01 | Phase 3 | Complete |
+| CRYPT-02 | Phase 3 | Complete |
+| CRYPT-03 | Phase 3 | Complete |
 | CRYPT-04 | Phase 3 | Pending |
-| CRYPT-05 | Phase 3 | Pending |
-| CRYPT-06 | Phase 3 | Pending |
-| CRYPT-07 | Phase 3 | Pending |
-| CRYPT-08 | Phase 3 | Pending |
-| CRYPT-09 | Phase 3 | Pending |
+| CRYPT-05 | Phase 3 | Complete |
+| CRYPT-06 | Phase 3 | Complete |
+| CRYPT-07 | Phase 3 | Complete |
+| CRYPT-08 | Phase 3 | Complete |
+| CRYPT-09 | Phase 3 | Complete |
 | CRYPT-10 | Phase 3 | Pending |
 | WRITE-01 | Phase 3 | Pending |
 | WRITE-02 | Phase 3 | Pending |

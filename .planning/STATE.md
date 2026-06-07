@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 02-03-PLAN.md
-last_updated: "2026-06-07T05:33:19.306Z"
-last_activity: 2026-06-07 -- Completed 02-03 Frontend setup/unlock pages with WebAuthn
+status: in-progress
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-06-07T05:53:00Z"
+last_activity: 2026-06-07 -- Completed 03-01 Crypto foundation and word count
 progress:
   total_phases: 7
   completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
-  percent: 100
+  total_plans: 9
+  completed_plans: 7
+  percent: 78
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-06-06)
 
 ## Current Position
 
-Phase: 2 of 7 (Auth & WebAuthn) -- COMPLETE
-Plan: 3 of 3 in current phase
-Status: Phase Complete
-Last activity: 2026-06-07 -- Completed 02-03 Frontend setup/unlock pages with WebAuthn
+Phase: 3 of 7 (Encryption & Writing)
+Plan: 1 of 3 in current phase -- COMPLETE
+Status: In Progress
+Last activity: 2026-06-07 -- Completed 03-01 Crypto foundation and word count
 
-Progress: [██████████] 100%
+Progress: [████████░░] 78%
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [██████████] 100%
 | Phase 02 P01 | 4 | 2 tasks | 12 files |
 | Phase 02-auth-webauthn P02 | 3 | 2 tasks | 6 files |
 | Phase 02-auth-webauthn P03 | 5 | 2 tasks | 5 files |
+| Phase 03-encryption-writing P01 | 3 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,10 @@ Recent decisions affecting current work:
 - [Phase 02-auth-webauthn]: PRF result kept as ArrayBuffer in memory, never serialized or sent to server
 - [Phase 02-auth-webauthn]: PIN stored in sessionStorage (client-side only gate), no server endpoint
 - [Phase 02-auth-webauthn]: Biometric and passphrase unlock always visible simultaneously per AUTH-06
+- [Phase 03-encryption-writing]: HKDF info string 'dead-letter-diary-dmk-wrap' for domain separation
+- [Phase 03-encryption-writing]: AAD format JSON.stringify({entryId, userId, wordCount}) -- deterministic key order
+- [Phase 03-encryption-writing]: PBKDF2 600,000 iterations per OWASP 2024 recommendation
+- [Phase 03-encryption-writing]: Intl.Segmenter with 'en' locale -- UAX #29 handles all scripts
 
 ### Pending Todos
 
@@ -95,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-07T05:29:22.379Z
-Stopped at: Completed 02-03-PLAN.md
+Last session: 2026-06-07T05:53:00Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None
