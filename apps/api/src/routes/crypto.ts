@@ -67,7 +67,7 @@ export default async function cryptoRoutes(
       // If no row — permissive default (deadline not yet configured, allow through)
 
       const shardResult = await fastify.pg.query(
-        "SELECT shard FROM server_shards WHERE user_id = $1",
+        "SELECT shard FROM shards.server_shards WHERE user_id = $1",
         [request.userId]
       );
 
@@ -106,7 +106,7 @@ export default async function cryptoRoutes(
       const shardBuf = Buffer.from(shard, "base64url");
 
       const existing = await fastify.pg.query(
-        "SELECT shard FROM server_shards WHERE user_id = $1",
+        "SELECT shard FROM shards.server_shards WHERE user_id = $1",
         [request.userId]
       );
 
@@ -123,7 +123,7 @@ export default async function cryptoRoutes(
 
       const encryptedShard = encryptShard(shardBuf);
       await fastify.pg.query(
-        "INSERT INTO server_shards (user_id, shard) VALUES ($1, $2) RETURNING id",
+        "INSERT INTO shards.server_shards (user_id, shard) VALUES ($1, $2) RETURNING id",
         [request.userId, encryptedShard]
       );
 

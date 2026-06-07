@@ -111,7 +111,7 @@ async function wipeRoutes(fastify: FastifyInstance): Promise<void> {
 
         // Delete server shard immediately (no settle window for panic)
         await client.query(
-          "DELETE FROM server_shards WHERE user_id = $1",
+          "DELETE FROM shards.server_shards WHERE user_id = $1",
           [userId]
         );
 

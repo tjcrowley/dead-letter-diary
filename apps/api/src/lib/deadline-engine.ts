@@ -118,7 +118,7 @@ export async function confirmWipe(client: PoolClient, userId: string): Promise<v
       [wipeLogId]
     );
 
-    await client.query("DELETE FROM server_shards WHERE user_id = $1", [userId]);
+    await client.query("DELETE FROM shards.server_shards WHERE user_id = $1", [userId]);
 
     await client.query(
       `UPDATE deadline_state
