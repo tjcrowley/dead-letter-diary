@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Dead Letter Diary",
-  description: "A commitment device for writers",
+  description: "A diary with a dead man's switch",
 };
 
 export default function RootLayout({
@@ -12,7 +12,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body
+        style={{
+          margin: 0,
+          padding: 0,
+          fontFamily:
+            "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+          backgroundColor: "#0a0a0a",
+          color: "#e8e8e8",
+          minHeight: "100vh",
+        }}
+      >
+        {children}
+      </body>
     </html>
   );
 }
