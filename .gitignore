@@ -1,0 +1,26 @@
+# Environment — NEVER commit .env (contains secrets)
+.env
+
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# TypeScript build output
+dist/
+
+# Generated planning summaries
+.planning/phases/**/SUMMARY.md
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Docker
+*.log

@@ -1,0 +1,83 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: deadletter
+      POSTGRES_USER: deadletter
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-deadletter_dev}
+    volumes:
+      # WARNING: deadletter_pgdata contains ALL diary data.
+      # NEVER run 'docker compose down -v' — it will permanently destroy all entries.
+      - deadletter_pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U deadletter"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - deadletter_redis:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build:
+      context: ./apps/api
+    restart: always
+    environment:
+      DATABASE_URL: postgres://deadletter:${POSTGRES_PASSWORD:-deadletter_dev}@postgres:5432/deadletter
+      REDIS_URL: redis://redis:6379
+      PORT: 3001
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+
+  web:
+    build:
+      context: ./apps/web
+    restart: always
+    environment:
+      PORT: 3000
+      HOSTNAME: "0.0.0.0"
+    env_file: .env
+    ports:
+      - "3000:3000"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: always
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - deadletter_caddy_data:/data
+      - deadletter_caddy_config:/config
+    env_file: .env
+    depends_on:
+      - api
+      - web
+
+volumes:
+  # WARNING: Contains all diary entries. NEVER use 'docker compose down -v'.
+  # To stop without data loss: 'docker compose down' (no -v flag).
+  deadletter_pgdata:
+  deadletter_redis:
+  deadletter_caddy_data:
+  deadletter_caddy_config:

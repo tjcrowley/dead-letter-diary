@@ -1,0 +1,7 @@
+{
+  "name": "dead-letter-diary",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ]
+}
