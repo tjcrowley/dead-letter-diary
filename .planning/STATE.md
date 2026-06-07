@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-06-07T21:17:18.885Z"
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-06-07T21:25:13.524Z"
 last_activity: 2026-06-07 -- Completed 04-02 outbox sync queue — db v2, sync.ts, SyncStatus component, write page wired
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 15
-  completed_plans: 13
+  completed_plans: 14
   percent: 92
 ---
 
@@ -63,6 +63,7 @@ Progress: [█████████░] 92%
 | Phase 04-offline-pwa P02 | 12 | 2 tasks | 7 files |
 | Phase 04-offline-pwa P03 | 3 | 2 tasks | 8 files |
 | Phase 05-dead-mans-switch P01 | 5 | 2 tasks | 11 files |
+| Phase 05-dead-mans-switch P02 | 5 | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -113,6 +114,8 @@ Recent decisions affecting current work:
 - [Phase 05-dead-mans-switch]: Two-phase wipe: wipe_log.shard_deleted=true before DELETE server_shards — crash-safe recovery (DMS-08)
 - [Phase 05-dead-mans-switch]: Akrasia weakening triggers 7-day pending_effective_at delay; strengthening is immediate
 - [Phase 05-dead-mans-switch]: Shard gate permissive when no deadline_state row — onboarding must work before deadline is configured
+- [Phase 05-dead-mans-switch]: initVapid() no-op when VAPID keys absent — safe for test environments before first run
+- [Phase 05-dead-mans-switch]: ON CONFLICT uses subscription->>'endpoint' JSONB extraction — no endpoint TEXT column needed
 
 ### Pending Todos
 
@@ -125,6 +128,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-07T21:17:18.881Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-06-07T21:25:09.542Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None

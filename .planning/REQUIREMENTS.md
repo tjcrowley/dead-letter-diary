@@ -53,13 +53,13 @@
 
 ### Notifications
 
-- [ ] **NOTIF-01**: Push notification warnings at configurable thresholds (default: 24h, 4h, 1h, 15min)
-- [ ] **NOTIF-02**: Warning tone escalates from gentle to urgent to final across thresholds
-- [ ] **NOTIF-03**: Push setup gated behind Home Screen install check on iOS
-- [ ] **NOTIF-04**: Re-subscribe on every app launch (iOS push subscriptions silently expire)
+- [x] **NOTIF-01**: Push notification warnings at configurable thresholds (default: 24h, 4h, 1h, 15min)
+- [x] **NOTIF-02**: Warning tone escalates from gentle to urgent to final across thresholds
+- [x] **NOTIF-03**: Push setup gated behind Home Screen install check on iOS
+- [x] **NOTIF-04**: Re-subscribe on every app launch (iOS push subscriptions silently expire)
 - [x] **NOTIF-05**: In-app deadline banner as backup when push fails — in-app is source of truth
-- [ ] **NOTIF-06**: `urgency: "high"` on deadline warnings to survive low-power mode
-- [ ] **NOTIF-07**: Soft-ask pattern for push permission (earn the prompt, don't ask on first load)
+- [x] **NOTIF-06**: `urgency: "high"` on deadline warnings to survive low-power mode
+- [x] **NOTIF-07**: Soft-ask pattern for push permission (earn the prompt, don't ask on first load)
 
 ### Wipe Ceremony
 
@@ -183,13 +183,13 @@
 | DMS-08 | Phase 5 | Complete |
 | DMS-09 | Phase 5 | Pending |
 | DMS-10 | Phase 5 | Pending |
-| NOTIF-01 | Phase 5 | Pending |
-| NOTIF-02 | Phase 5 | Pending |
-| NOTIF-03 | Phase 5 | Pending |
-| NOTIF-04 | Phase 5 | Pending |
+| NOTIF-01 | Phase 5 | Complete |
+| NOTIF-02 | Phase 5 | Complete |
+| NOTIF-03 | Phase 5 | Complete |
+| NOTIF-04 | Phase 5 | Complete |
 | NOTIF-05 | Phase 5 | Complete |
-| NOTIF-06 | Phase 5 | Pending |
-| NOTIF-07 | Phase 5 | Pending |
+| NOTIF-06 | Phase 5 | Complete |
+| NOTIF-07 | Phase 5 | Complete |
 | WIPE-01 | Phase 6 | Pending |
 | WIPE-02 | Phase 6 | Pending |
 | WIPE-03 | Phase 6 | Pending |
