@@ -5,17 +5,50 @@ import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { registerPasskey } from "@/lib/webauthn";
 
-type Step = "create-account" | "enroll-passkey";
+type Step =
+  | "create-account"
+  | "enroll-passkey"
+  | "diary-name"
+  | "commitment"
+  | "acknowledgment";
+
+const TOTAL_STEPS = 5;
+const STEP_NUMBERS: Record<Step, number> = {
+  "create-account": 1,
+  "enroll-passkey": 2,
+  "diary-name": 3,
+  commitment: 4,
+  acknowledgment: 5,
+};
 
 export default function SetupPage() {
   const router = useRouter();
+
+  // Step tracking
   const [step, setStep] = useState<Step>("create-account");
+
+  // Step 1: create-account
   const [passphrase, setPassphrase] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+
+  // Step 2: enroll-passkey
   const [prfStatus, setPrfStatus] = useState<boolean | null>(null);
 
+  // Step 3: diary-name
+  const [diaryName, setDiaryName] = useState("");
+
+  // Step 4: commitment
+  const [windowHours, setWindowHours] = useState(24);
+  const [wordMinimum, setWordMinimum] = useState(50);
+
+  // Step 5: acknowledgment
+  const [acknowledged, setAcknowledged] = useState(false);
+
+  // Shared
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // ── Step 1: Create Account ──────────────────────────────────────────────────
   async function handleCreateAccount(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -40,6 +73,7 @@ export default function SetupPage() {
     }
   }
 
+  // ── Step 2: Enroll Passkey ──────────────────────────────────────────────────
   async function handleRegisterPasskey() {
     setError("");
     setLoading(true);
@@ -55,18 +89,79 @@ export default function SetupPage() {
     }
   }
 
-  function handleContinue() {
+  function handlePasskeyContinue() {
+    setStep("diary-name");
+  }
+
+  // ── Step 3: Diary Name ──────────────────────────────────────────────────────
+  async function handleDiaryName(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+
+    const trimmed = diaryName.trim();
+    if (!trimmed) {
+      setError("Please enter a name for your diary.");
+      return;
+    }
+    if (trimmed.length > 80) {
+      setError("Diary name must be 80 characters or fewer.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await api.patch("/api/settings", {
+        diary_name: trimmed,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      });
+      setStep("commitment");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save diary name.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // ── Step 4: Commitment ──────────────────────────────────────────────────────
+  async function handleCommitment(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+
+    setLoading(true);
+    try {
+      await api.post("/api/deadline/settings", {
+        window_hours: windowHours,
+        word_minimum: wordMinimum,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      });
+      setStep("acknowledgment");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save commitment settings.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // ── Step 5: Acknowledgment ──────────────────────────────────────────────────
+  function handleBeginWriting() {
     router.push("/");
   }
+
+  // ── Render ──────────────────────────────────────────────────────────────────
+  const currentStepNum = STEP_NUMBERS[step];
 
   return (
     <div style={styles.container}>
       <h1 style={styles.title}>Dead Letter Diary</h1>
       <p style={styles.subtitle}>First-time setup</p>
+      <p style={styles.stepIndicator}>
+        Step {currentStepNum} of {TOTAL_STEPS}
+      </p>
 
+      {/* ── Step 1: Create Account ── */}
       {step === "create-account" && (
         <form onSubmit={handleCreateAccount} style={styles.card}>
-          <h2 style={styles.cardTitle}>Step 1: Create Account</h2>
+          <h2 style={styles.cardTitle}>Create Account</h2>
           <p style={styles.hint}>
             Choose a strong passphrase (12+ characters). This is your fallback
             if biometrics are unavailable.
@@ -107,9 +202,10 @@ export default function SetupPage() {
         </form>
       )}
 
+      {/* ── Step 2: Enroll Passkey ── */}
       {step === "enroll-passkey" && (
         <div style={styles.card}>
-          <h2 style={styles.cardTitle}>Step 2: Register Passkey</h2>
+          <h2 style={styles.cardTitle}>Register Passkey</h2>
           <p style={styles.hint}>
             Register a passkey to unlock with Face ID, Touch ID, or Windows
             Hello.
@@ -138,11 +234,120 @@ export default function SetupPage() {
                   for encryption key derivation.
                 </p>
               )}
-              <button onClick={handleContinue} style={styles.button}>
-                Continue to Diary
+              <button onClick={handlePasskeyContinue} style={styles.button}>
+                Continue
               </button>
             </>
           )}
+        </div>
+      )}
+
+      {/* ── Step 3: Diary Name ── */}
+      {step === "diary-name" && (
+        <form onSubmit={handleDiaryName} style={styles.card}>
+          <h2 style={styles.cardTitle}>Name Your Diary</h2>
+          <p style={styles.hint}>
+            Give your diary a name. This is only visible to you and helps
+            identify it across devices.
+          </p>
+
+          <label style={styles.label}>
+            Diary Name
+            <input
+              type="text"
+              value={diaryName}
+              onChange={(e) => setDiaryName(e.target.value)}
+              placeholder="e.g. My Dead Letter Diary"
+              style={styles.input}
+              maxLength={80}
+              required
+            />
+          </label>
+
+          {error && <p style={styles.error}>{error}</p>}
+
+          <button type="submit" disabled={loading} style={styles.button}>
+            {loading ? "Saving..." : "Continue"}
+          </button>
+        </form>
+      )}
+
+      {/* ── Step 4: Commitment ── */}
+      {step === "commitment" && (
+        <form onSubmit={handleCommitment} style={styles.card}>
+          <h2 style={styles.cardTitle}>Set Your Commitment</h2>
+          <p style={styles.hint}>
+            How often must you check in, and how much must you write? These
+            are your commitments — strengthening them takes effect immediately,
+            but relaxing them requires a 7-day waiting period.
+          </p>
+
+          <label style={styles.label}>
+            Check-in window (hours)
+            <input
+              type="number"
+              value={windowHours}
+              onChange={(e) => setWindowHours(Number(e.target.value))}
+              min={12}
+              max={168}
+              style={styles.input}
+              required
+            />
+          </label>
+
+          <label style={styles.label}>
+            Word minimum per check-in
+            <input
+              type="number"
+              value={wordMinimum}
+              onChange={(e) => setWordMinimum(Number(e.target.value))}
+              min={25}
+              max={500}
+              style={styles.input}
+              required
+            />
+          </label>
+
+          {error && <p style={styles.error}>{error}</p>}
+
+          <button type="submit" disabled={loading} style={styles.button}>
+            {loading ? "Saving..." : "Set Commitment"}
+          </button>
+        </form>
+      )}
+
+      {/* ── Step 5: Acknowledgment ── */}
+      {step === "acknowledgment" && (
+        <div style={{ ...styles.card, ...styles.dangerCard }}>
+          <h2 style={{ ...styles.cardTitle, color: "#ff4444" }}>
+            No Recovery
+          </h2>
+          <p style={styles.hint}>
+            If your deadline passes without a check-in, this diary will be
+            permanently and cryptographically destroyed. There is no backup,
+            no recovery, no second chance. The data will be gone forever.
+          </p>
+
+          <label style={styles.checkboxLabel}>
+            <input
+              type="checkbox"
+              checked={acknowledged}
+              onChange={(e) => setAcknowledged(e.target.checked)}
+              style={styles.checkbox}
+            />
+            I understand this diary can be permanently destroyed
+          </label>
+
+          <button
+            onClick={handleBeginWriting}
+            disabled={!acknowledged}
+            style={{
+              ...styles.button,
+              ...(acknowledged ? {} : styles.buttonDisabled),
+            }}
+          >
+            Begin Writing
+          </button>
         </div>
       )}
     </div>
@@ -168,8 +373,15 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: "1.1rem",
     color: "#888",
     marginTop: "0.5rem",
-    marginBottom: "2rem",
+    marginBottom: "0.5rem",
     fontStyle: "italic",
+  },
+  stepIndicator: {
+    fontSize: "0.85rem",
+    color: "#666",
+    marginBottom: "2rem",
+    letterSpacing: "0.05em",
+    textTransform: "uppercase",
   },
   card: {
     width: "100%",
@@ -179,16 +391,22 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: "8px",
     backgroundColor: "#111",
   },
+  dangerCard: {
+    border: "1px solid #882222",
+    backgroundColor: "#130a0a",
+  },
   cardTitle: {
     fontSize: "1.25rem",
     fontWeight: 600,
     marginBottom: "0.75rem",
+    marginTop: 0,
   },
   hint: {
     fontSize: "0.9rem",
     color: "#999",
     marginBottom: "1.5rem",
     lineHeight: 1.5,
+    marginTop: 0,
   },
   label: {
     display: "flex",
@@ -218,6 +436,28 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: "6px",
     cursor: "pointer",
     marginTop: "0.5rem",
+  },
+  buttonDisabled: {
+    backgroundColor: "#333",
+    color: "#666",
+    cursor: "not-allowed",
+  },
+  checkboxLabel: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "0.75rem",
+    fontSize: "0.9rem",
+    color: "#ccc",
+    marginBottom: "1.5rem",
+    cursor: "pointer",
+    lineHeight: 1.5,
+  },
+  checkbox: {
+    marginTop: "0.15rem",
+    flexShrink: 0,
+    width: "16px",
+    height: "16px",
+    cursor: "pointer",
   },
   error: {
     color: "#ff4444",
