@@ -127,3 +127,16 @@ None — no external service configuration required for this plan.
 ---
 *Phase: 01-foundation*
 *Completed: 2026-06-07*
+
+## Self-Check: PASSED
+
+All files exist:
+- apps/api/src/boot/secrets.ts — FOUND
+- scripts/test-phase1.sh — FOUND
+- apps/api/src/server.ts — FOUND
+- .planning/phases/01-foundation/01-03-SUMMARY.md — FOUND
+
+All commits exist:
+- 44b253f — FOUND (feat: secret auto-generation and HTTPS boot check)
+- df8f005 — FOUND (feat: Phase 1 smoke test script)
+- 1496102 — FOUND (docs: plan metadata)
