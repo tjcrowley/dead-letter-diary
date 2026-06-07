@@ -161,4 +161,81 @@ export default async function entriesRoutes(
       });
     }
   );
+
+  /**
+   * GET /api/entries/streak
+   * Computes the current consecutive-day streak for the authenticated user.
+   * A streak is consecutive calendar days (in user's timezone) with at least one entry.
+   * Returns { streak: number, last_entry_date: string | null }
+   */
+  fastify.get(
+    "/api/entries/streak",
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const userId = request.userId;
+
+      // Get user's timezone for date grouping
+      const userResult = await fastify.pg.query(
+        "SELECT timezone FROM users WHERE id = $1",
+        [userId]
+      );
+      const timezone =
+        userResult.rows.length > 0
+          ? ((userResult.rows[0] as { timezone: string }).timezone ?? "UTC")
+          : "UTC";
+
+      // Query entry dates grouped by calendar day in user's timezone, most recent first
+      const result = await fastify.pg.query(
+        `SELECT DATE(e.created_at AT TIME ZONE u.timezone) AS entry_date
+         FROM entries e
+         JOIN users u ON u.id = e.user_id
+         WHERE e.user_id = $1
+         GROUP BY DATE(e.created_at AT TIME ZONE u.timezone)
+         ORDER BY entry_date DESC`,
+        [userId]
+      );
+
+      if (result.rows.length === 0) {
+        return reply.status(200).send({ streak: 0, last_entry_date: null });
+      }
+
+      const rows = result.rows as { entry_date: Date }[];
+      const lastEntryDate = rows[0].entry_date;
+
+      // Convert a Date to an integer "epoch day" for comparison
+      function toEpochDay(d: Date): number {
+        return Math.floor(d.getTime() / (24 * 60 * 60 * 1000));
+      }
+
+      const nowUTC = new Date();
+      const todayEpochDay = toEpochDay(nowUTC);
+      const lastEntryEpochDay = toEpochDay(new Date(lastEntryDate));
+
+      // Streak must start today or yesterday (allow for mid-day)
+      if (todayEpochDay - lastEntryEpochDay > 1) {
+        return reply.status(200).send({
+          streak: 0,
+          last_entry_date: new Date(lastEntryDate).toISOString().split("T")[0],
+        });
+      }
+
+      // Walk backwards through consecutive days
+      let streak = 1;
+      for (let i = 1; i < rows.length; i++) {
+        const prevDay = toEpochDay(new Date(rows[i - 1].entry_date));
+        const currDay = toEpochDay(new Date(rows[i].entry_date));
+        if (prevDay - currDay === 1) {
+          streak++;
+        } else {
+          break;
+        }
+      }
+
+      const lastEntryDateStr = new Date(lastEntryDate).toISOString().split("T")[0];
+      return reply.status(200).send({
+        streak,
+        last_entry_date: lastEntryDateStr,
+      });
+    }
+  );
 }

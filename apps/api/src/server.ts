@@ -14,6 +14,7 @@ import deadlinePollerPlugin from "./plugins/deadline-poller.js";
 import deadlineRoutes from "./routes/deadline.js";
 import notificationsRoutes from "./routes/notifications.js";
 import wipeRoutes from "./routes/wipe.js";
+import settingsRoutes from "./routes/settings.js";
 import { runMigrations } from "./boot/migrate.js";
 import { ensureSecrets } from "./boot/secrets.js";
 
@@ -68,6 +69,7 @@ async function start(): Promise<void> {
   fastify.register(deadlineRoutes);
   fastify.register(notificationsRoutes);
   fastify.register(wipeRoutes);
+  fastify.register(settingsRoutes);
 
   const shutdown = async () => {
     try {
