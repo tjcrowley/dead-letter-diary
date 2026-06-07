@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 01-02-PLAN.md
-last_updated: "2026-06-07T04:35:19.199Z"
+stopped_at: Completed 01-03-PLAN.md
+last_updated: "2026-06-07T04:41:30.657Z"
 last_activity: 2026-06-06 -- Roadmap created (7 phases, 74 requirements mapped)
 progress:
   total_phases: 7
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase 01-foundation P01 | 3 | 2 tasks | 27 files |
 | Phase 01-foundation P02 | 90 | 2 tasks | 12 files |
+| Phase 01-foundation P03 | 4 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -68,6 +69,9 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: npm workspace Docker builds require root build context; API uses workspace flag against root lock file
 - [Phase 01-foundation]: Caddy bound to 127.0.0.1/::1 only — Docker Desktop VPNKit holds 0.0.0.0:443 on macOS
 - [Phase 01-foundation]: Next.js production Docker build uses npx next build (no --turbopack) — turbopack is dev-only
+- [Phase 01-foundation]: Secrets set into process.env at runtime — smoke test uses node -e ensureSecrets() not printenv to verify secret presence
+- [Phase 01-foundation]: Generated secrets persisted to deadletter_api_secrets named volume via GENERATED_ENV_PATH — avoids host .env write and bind mount issues
+- [Phase 01-foundation]: INST-09 volume prefix is dead-letter-diary_deadletter_ (compose project + volume name) — grep on substring not prefix
 
 ### Pending Todos
 
@@ -80,6 +84,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-07T04:35:19.195Z
-Stopped at: Completed 01-02-PLAN.md
+Last session: 2026-06-07T04:41:30.653Z
+Stopped at: Completed 01-03-PLAN.md
 Resume file: None

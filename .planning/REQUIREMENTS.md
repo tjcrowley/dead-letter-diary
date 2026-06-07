@@ -102,12 +102,12 @@
 - [x] **INST-02**: Caddy reverse proxy with mkcert local CA cert for HTTPS
 - [ ] **INST-03**: Installer script: checks Docker → starts Compose → registers system service → opens browser
 - [ ] **INST-04**: System service integration: launchd plist (macOS), systemd user unit (Linux)
-- [ ] **INST-05**: First-run auto-generates all secrets (VAPID keys, session secret, shard encryption key)
+- [x] **INST-05**: First-run auto-generates all secrets (VAPID keys, session secret, shard encryption key)
 - [x] **INST-06**: `.env.example` only — `.env` in `.gitignore` from commit zero
 - [ ] **INST-07**: Server shards in separate PostgreSQL schema excluded from backups
 - [ ] **INST-08**: Opinionated `backup.sh` that explicitly excludes shards schema
 - [x] **INST-09**: Named Docker volumes with prominent warnings about `docker compose down -v`
-- [ ] **INST-10**: HTTPS-only boot check — refuse to start on `http://` (except localhost)
+- [x] **INST-10**: HTTPS-only boot check — refuse to start on `http://` (except localhost)
 
 ## v2 Requirements
 
@@ -217,12 +217,12 @@
 | INST-02 | Phase 1 | Complete |
 | INST-03 | Phase 7 | Pending |
 | INST-04 | Phase 7 | Pending |
-| INST-05 | Phase 1 | Pending |
+| INST-05 | Phase 1 | Complete |
 | INST-06 | Phase 1 | Complete |
 | INST-07 | Phase 6 | Pending |
 | INST-08 | Phase 6 | Pending |
 | INST-09 | Phase 1 | Complete |
-| INST-10 | Phase 1 | Pending |
+| INST-10 | Phase 1 | Complete |
 
 **Coverage:** 74/74 v1 requirements mapped
 
