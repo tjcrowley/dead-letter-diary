@@ -42,6 +42,7 @@ The diary must actually be inescapably deletable — not just "deleted from the 
 - Key-split architecture: device shard protected by WebAuthn in the secure enclave, server shard returned only to authenticated sessions in good standing; derived key = HKDF(device_shard XOR server_shard), used for AES-GCM 256 encryption
 - PWA with Web Push for notifications; Web Crypto API for all encryption (no third-party crypto libs)
 - Both mobile (Face ID, Touch ID, fingerprint) and desktop (Windows Hello, YubiKey, passphrase) must be first-class
+- **Primary deployment target: local machine (laptop/desktop), not a VPS.** The server component runs as a system service (launchd on macOS, systemd on Linux) inside Docker with `restart: always`. Users install it once; it starts on boot and is not trivially stoppable. This raises the tampering bar from "technically savvy" to "deliberately circumventing the system."
 - GitHub: github.com/tjcrowley/dead-letter-diary
 
 ## Constraints
@@ -51,6 +52,8 @@ The diary must actually be inescapably deletable — not just "deleted from the 
 - **Offline**: Must work without internet for writing; sync on reconnect
 - **No recovery**: By design — no "forgot my password, restore everything" path for diary contents
 - **Platform**: PWA only in v1 — no native app
+- **Deployment**: Local-first — runs on user's own machine. Installer sets up Docker + system service + local HTTPS (Caddy with local CA cert). No cloud account, no domain name, no VPS required. Docker `restart: always` + OS service integration makes container resilient to accidental stops.
+- **HTTPS**: Required for WebAuthn and Service Worker. Caddy handles local cert via mkcert integration — installed into system trust store automatically.
 
 ## Key Decisions
 
@@ -63,6 +66,8 @@ The diary must actually be inescapably deletable — not just "deleted from the 
 | Next.js 15 PWA | Best PWA ecosystem, TypeScript-first, same stack as BCM | — Pending |
 | Fastify backend | Lightweight, TypeScript, same stack as BCM | — Pending |
 | Dexie.js + IndexedDB | Best offline-first DX for PWA | — Pending |
+| Local-first deployment with system service | Primary target is user's own machine; Docker + launchd/systemd raises tampering bar; no cloud dependency | — Pending |
+| Caddy reverse proxy with local CA | WebAuthn requires HTTPS; Caddy auto-generates trusted local cert via mkcert — no user cert management | — Pending |
 
 ---
 *Last updated: 2026-06-06 after initialization*
