@@ -40,3 +40,31 @@ self.addEventListener("message", (event) => {
     self.skipWaiting();
   }
 });
+
+// Handle incoming push notifications (NOTIF-01)
+self.addEventListener("push", (event: PushEvent) => {
+  const data = event.data?.json() as {
+    title?: string;
+    body?: string;
+    data?: Record<string, unknown>;
+  };
+
+  const title = data?.title ?? "Dead Letter Diary";
+  const options: NotificationOptions = {
+    body: data?.body ?? "Your deadline is approaching.",
+    icon: "/icons/icon-192x192.png",
+    badge: "/icons/badge-72x72.png",
+    data: data?.data ?? {},
+    requireInteraction: true,
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Handle notification click — open the write page (NOTIF-02)
+self.addEventListener("notificationclick", (event: NotificationEvent) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.openWindow("/write")
+  );
+});
