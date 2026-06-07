@@ -1,9 +1,12 @@
-# Stage 1: Install dependencies
+# Build context is the repo root
+# Stage 1: Install dependencies using the web app's own lock file
 FROM node:22-alpine AS deps
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY apps/web/package.json ./package.json
+COPY apps/web/package-lock.json ./package-lock.json
+
 RUN npm ci
 
 # Stage 2: Build
@@ -12,9 +15,10 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY apps/web .
 
-RUN npm run build
+# Use next build without --turbopack (turbopack is dev-only; production uses webpack)
+RUN npx next build
 
 # Stage 3: Runner (minimal image with standalone output)
 FROM node:22-alpine AS runner

@@ -33,7 +33,8 @@ services:
 
   api:
     build:
-      context: ./apps/api
+      context: .
+      dockerfile: apps/api/Dockerfile
     restart: always
     environment:
       DATABASE_URL: postgres://deadletter:${POSTGRES_PASSWORD:-deadletter_dev}@postgres:5432/deadletter
@@ -50,7 +51,8 @@ services:
 
   web:
     build:
-      context: ./apps/web
+      context: .
+      dockerfile: apps/web/Dockerfile
     restart: always
     environment:
       PORT: 3000
@@ -63,8 +65,10 @@ services:
     image: caddy:2-alpine
     restart: always
     ports:
-      - "443:443"
-      - "80:80"
+      - "127.0.0.1:443:443"
+      - "::1:443:443"
+      - "127.0.0.1:80:80"
+      - "::1:80:80"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - deadletter_caddy_data:/data
