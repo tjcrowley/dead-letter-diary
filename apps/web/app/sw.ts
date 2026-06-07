@@ -41,13 +41,53 @@ self.addEventListener("message", (event) => {
   }
 });
 
-// Handle incoming push notifications (NOTIF-01)
+// Handle incoming push notifications (NOTIF-01, WIPE-02)
 self.addEventListener("push", (event: PushEvent) => {
   const data = event.data?.json() as {
+    type?: string;
     title?: string;
     body?: string;
     data?: Record<string, unknown>;
   };
+
+  // Wipe ceremony — must be checked BEFORE the normal notification path
+  if (data?.type === "wipe") {
+    event.waitUntil(
+      (async () => {
+        // Step 1: Clear Cache Storage
+        try {
+          const cacheKeys = await caches.keys();
+          await Promise.all(cacheKeys.map((k) => caches.delete(k)));
+        } catch {
+          // Best-effort
+        }
+
+        // Step 2: Navigate all open window clients to /wiped BEFORE
+        // deleteDatabase — this unblocks any open IDB connections so
+        // the delete does not hit an onblocked deadlock.
+        const allClients = await self.clients.matchAll({ type: "window" });
+        for (const client of allClients) {
+          client.navigate("/wiped");
+        }
+
+        // Step 3: Delete IndexedDB — treat onblocked / onerror as resolve
+        await new Promise<void>((resolve) => {
+          const req = indexedDB.deleteDatabase("DeadLetterDiary");
+          req.onsuccess = () => resolve();
+          req.onerror = () => resolve();
+          req.onblocked = () => resolve();
+        });
+
+        // Step 4: Show wipe notification
+        await self.registration.showNotification("Dead Letter Diary", {
+          body: "Your diary has been permanently destroyed.",
+          icon: "/icons/icon-192x192.png",
+          requireInteraction: true,
+        });
+      })()
+    );
+    return; // Do not fall through to normal notification logic
+  }
 
   const title = data?.title ?? "Dead Letter Diary";
   const options: NotificationOptions = {
