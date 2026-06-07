@@ -88,17 +88,17 @@ export default async function deadlineRoutes(fastify: FastifyInstance): Promise<
 
         // Seed default notification thresholds (ON CONFLICT DO NOTHING)
         const thresholds = [
-          { hours: 24, label: "24h", urgency: "gentle" },
-          { hours: 4, label: "4h", urgency: "urgent" },
-          { hours: 1, label: "1h", urgency: "urgent" },
-          { hours: 0.25, label: "15min", urgency: "final" },
+          { minutes: 24 * 60, tone: "gentle" },
+          { minutes: 4 * 60,  tone: "urgent" },
+          { minutes: 1 * 60,  tone: "urgent" },
+          { minutes: 15,      tone: "final"  },
         ];
 
         for (const t of thresholds) {
           await fastify.pg.query(
-            `INSERT INTO notification_thresholds (user_id, hours_before, label, urgency)
-             VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`,
-            [userId, t.hours, t.label, t.urgency]
+            `INSERT INTO notification_thresholds (user_id, threshold_minutes, tone)
+             VALUES ($1, $2, $3) ON CONFLICT DO NOTHING`,
+            [userId, t.minutes, t.tone]
           );
         }
 

@@ -145,6 +145,7 @@ describe("Deadline routes", () => {
     it("creates a new deadline_state row with defaults when none exists", async () => {
       const userId = "user-123";
       const insertCalls: string[] = [];
+      const thresholdInsertSqls: string[] = [];
 
       let callIdx = 0;
       const responses: QueryResult<QueryResultRow>[] = [
@@ -167,6 +168,9 @@ describe("Deadline routes", () => {
         if (text.includes("INSERT") && text.includes("deadline_state")) {
           insertCalls.push(text);
         }
+        if (text.includes("INSERT") && text.includes("notification_thresholds")) {
+          thresholdInsertSqls.push(text);
+        }
         return responses[callIdx++];
       });
 
@@ -181,6 +185,14 @@ describe("Deadline routes", () => {
 
       expect(res.statusCode).toBe(200);
       expect(insertCalls.length).toBeGreaterThan(0);
+
+      // Verify correct column names in threshold INSERT
+      expect(thresholdInsertSqls.length).toBe(4); // one per threshold
+      expect(thresholdInsertSqls[0]).toContain("threshold_minutes");
+      expect(thresholdInsertSqls[0]).toContain("tone");
+      expect(thresholdInsertSqls[0]).not.toContain("hours_before");
+      expect(thresholdInsertSqls[0]).not.toContain("label");
+      expect(thresholdInsertSqls[0]).not.toContain("urgency");
     });
 
     it("writes pending fields (Akrasia weakening) when weakening window_hours", async () => {
