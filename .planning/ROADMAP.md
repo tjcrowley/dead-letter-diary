@@ -134,12 +134,12 @@ Plans:
   3. Settings page lets user configure word minimum, timeout, warning thresholds, grace budget, and timezone
   4. Streak counter and deadline countdown are visible from the dashboard and every screen respectively
   5. User can browse past entries in a read-only view with client-side decryption
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 07-01: Installer script and system service integration
-- [ ] 07-02: First-run setup ritual and settings page
-- [ ] 07-03: Streak counter, deadline countdown, and past entries browser
+- [ ] 07-01-PLAN.md — Installer script (install.sh) and system service manifests (launchd plist + systemd unit)
+- [ ] 07-02-PLAN.md — Extended first-run setup ritual, settings page, and streak counter (Wave 2, parallel with 07-03)
+- [ ] 07-03-PLAN.md — Past entries browser with client-side decryption (Wave 2, parallel with 07-02)
 
 ## Progress
 
