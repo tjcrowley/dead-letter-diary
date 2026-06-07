@@ -13,6 +13,10 @@ interface AadPayload {
   wordCount: number;
 }
 
+interface EntryParams {
+  id: string;
+}
+
 const DEFAULT_WORD_MINIMUM = 50;
 
 export default async function entriesRoutes(
@@ -78,6 +82,83 @@ export default async function entriesRoutes(
       );
 
       return reply.status(201).send({ id: entryId });
+    }
+  );
+
+  /**
+   * GET /api/entries
+   * Returns a list of the authenticated user's diary entries (metadata only).
+   * Ciphertext is intentionally excluded — no unnecessary bandwidth, and
+   * the server doesn't need to expose ciphertext for listing purposes.
+   */
+  fastify.get(
+    "/api/entries",
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const result = await fastify.pg.query<{
+        id: string;
+        word_count: number;
+        created_at: Date;
+      }>(
+        `SELECT id, word_count, created_at
+         FROM entries
+         WHERE user_id = $1
+         ORDER BY created_at DESC
+         LIMIT 100`,
+        [request.userId]
+      );
+
+      return reply.send({
+        entries: result.rows.map((row) => ({
+          id: row.id,
+          word_count: row.word_count,
+          created_at: row.created_at,
+        })),
+      });
+    }
+  );
+
+  /**
+   * GET /api/entries/:id
+   * Returns the encrypted payload for a single diary entry.
+   * The user_id guard (AND user_id = $2) is critical — prevents one user
+   * from reading another user's ciphertext.
+   * Client decrypts in-browser using the session DMK (server never sees plaintext).
+   */
+  fastify.get<{ Params: EntryParams }>(
+    "/api/entries/:id",
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest<{ Params: EntryParams }>, reply: FastifyReply) => {
+      const { id } = request.params;
+
+      const result = await fastify.pg.query<{
+        id: string;
+        ciphertext: Buffer;
+        iv: Buffer;
+        aad: Buffer;
+        word_count: number;
+        created_at: Date;
+      }>(
+        `SELECT id, ciphertext, iv, aad, word_count, created_at
+         FROM entries
+         WHERE id = $1 AND user_id = $2`,
+        [id, request.userId]
+      );
+
+      if (result.rows.length === 0) {
+        return reply.status(404).send({ error: "Entry not found" });
+      }
+
+      const row = result.rows[0];
+
+      return reply.send({
+        id: row.id,
+        ciphertext: Buffer.from(row.ciphertext).toString("base64url"),
+        iv: Buffer.from(row.iv).toString("base64url"),
+        aad: Buffer.from(row.aad).toString("base64url"),
+        word_count: row.word_count,
+        created_at: row.created_at,
+      });
     }
   );
 }
