@@ -5,9 +5,46 @@ import Fastify from "fastify";
 import dbPlugin from "./plugins/db.js";
 import healthRoutes from "./routes/health.js";
 import { runMigrations } from "./boot/migrate.js";
+import { ensureSecrets } from "./boot/secrets.js";
 
 async function start(): Promise<void> {
+  // 1. Auto-generate missing secrets (SESSION_SECRET, VAPID keys, SHARD_ENCRYPTION_KEY)
+  await ensureSecrets();
+
   const fastify = Fastify({ logger: true });
+
+  // 2. HTTPS-only boot check (INST-10)
+  //    Caddy sets X-Forwarded-Proto when proxying. Reject plain HTTP requests
+  //    for non-localhost hostnames. Localhost is exempt (dev exception).
+  const siteHostname = process.env.SITE_HOSTNAME || "localhost";
+  const isLocalhostDeployment =
+    siteHostname === "localhost" || siteHostname === "127.0.0.1";
+
+  if (!isLocalhostDeployment) {
+    fastify.log.warn(
+      `HTTPS required for non-localhost deployments. Caddy provides HTTPS automatically. SITE_HOSTNAME=${siteHostname}`
+    );
+  }
+
+  fastify.addHook(
+    "onRequest",
+    async (request, reply) => {
+      const forwardedProto = request.headers["x-forwarded-proto"];
+      const host = request.headers["host"] || "";
+      const isLocalHost =
+        host.startsWith("localhost") ||
+        host.startsWith("127.0.0.1");
+
+      // Reject HTTP requests to non-localhost hostnames
+      if (
+        forwardedProto === "http" &&
+        !isLocalHost &&
+        !isLocalhostDeployment
+      ) {
+        return reply.status(403).send({ error: "HTTPS required" });
+      }
+    }
+  );
 
   fastify.register(dbPlugin);
   fastify.register(healthRoutes);

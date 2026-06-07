@@ -40,7 +40,11 @@ services:
       DATABASE_URL: postgres://deadletter:${POSTGRES_PASSWORD:-deadletter_dev}@postgres:5432/deadletter
       REDIS_URL: redis://redis:6379
       PORT: 3001
+      # Secrets auto-generated on first boot are persisted to this path on a named volume.
+      GENERATED_ENV_PATH: /app-secrets/.env.generated
     env_file: .env
+    volumes:
+      - deadletter_api_secrets:/app-secrets
     depends_on:
       postgres:
         condition: service_healthy
@@ -85,3 +89,6 @@ volumes:
   deadletter_redis:
   deadletter_caddy_data:
   deadletter_caddy_config:
+  # Persists auto-generated secrets (SESSION_SECRET, VAPID keys, SHARD_ENCRYPTION_KEY)
+  # across container restarts. NEVER use 'docker compose down -v'.
+  deadletter_api_secrets:
