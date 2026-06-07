@@ -21,13 +21,13 @@
 - [x] **CRYPT-01**: Diary Master Key (DMK) generated at account creation (32 bytes random)
 - [x] **CRYPT-02**: DMK wrapped with AES-GCM using wrap_key derived from HKDF(device_shard XOR server_shard)
 - [x] **CRYPT-03**: Device shard derived from WebAuthn PRF output (or Argon2id from passphrase as fallback)
-- [ ] **CRYPT-04**: Server shard stored in PostgreSQL, returned only to authenticated sessions in good standing
+- [x] **CRYPT-04**: Server shard stored in PostgreSQL, returned only to authenticated sessions in good standing
 - [x] **CRYPT-05**: All diary entries encrypted with AES-GCM 256 using DMK
 - [x] **CRYPT-06**: Fresh random IV (12 bytes) per encryption operation — never reused
 - [x] **CRYPT-07**: Entry metadata (entry_id, user_id, word_count) bound as AES-GCM AAD
 - [x] **CRYPT-08**: DMK held as non-extractable CryptoKey in memory during session — never serialized
 - [x] **CRYPT-09**: Per-user random HKDF salt (32 bytes) stored at registration
-- [ ] **CRYPT-10**: All shard/token/challenge comparisons use crypto.timingSafeEqual()
+- [x] **CRYPT-10**: All shard/token/challenge comparisons use crypto.timingSafeEqual()
 
 ### Writing
 
@@ -35,7 +35,7 @@
 - [ ] **WRITE-02**: Live word count visible at all times, turns green when minimum is met
 - [ ] **WRITE-03**: Auto-save to IndexedDB every 1-2 seconds (debounced, never lose a keystroke)
 - [ ] **WRITE-04**: Word count computed using Intl.Segmenter with isWordLike (supports CJK/Thai)
-- [ ] **WRITE-05**: Server verifies word count from AAD on check-in submission
+- [x] **WRITE-05**: Server verifies word count from AAD on check-in submission
 - [ ] **WRITE-06**: User can browse past entries in read-only view (client-side decryption)
 
 ### Dead Man's Switch
@@ -160,18 +160,18 @@
 | CRYPT-01 | Phase 3 | Complete |
 | CRYPT-02 | Phase 3 | Complete |
 | CRYPT-03 | Phase 3 | Complete |
-| CRYPT-04 | Phase 3 | Pending |
+| CRYPT-04 | Phase 3 | Complete |
 | CRYPT-05 | Phase 3 | Complete |
 | CRYPT-06 | Phase 3 | Complete |
 | CRYPT-07 | Phase 3 | Complete |
 | CRYPT-08 | Phase 3 | Complete |
 | CRYPT-09 | Phase 3 | Complete |
-| CRYPT-10 | Phase 3 | Pending |
+| CRYPT-10 | Phase 3 | Complete |
 | WRITE-01 | Phase 3 | Pending |
 | WRITE-02 | Phase 3 | Pending |
 | WRITE-03 | Phase 3 | Pending |
 | WRITE-04 | Phase 3 | Pending |
-| WRITE-05 | Phase 3 | Pending |
+| WRITE-05 | Phase 3 | Complete |
 | WRITE-06 | Phase 7 | Pending |
 | DMS-01 | Phase 5 | Pending |
 | DMS-02 | Phase 5 | Pending |
