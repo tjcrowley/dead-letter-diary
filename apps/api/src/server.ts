@@ -10,6 +10,8 @@ import authRoutes from "./routes/auth.js";
 import webauthnRoutes from "./routes/webauthn.js";
 import cryptoRoutes from "./routes/crypto.js";
 import entriesRoutes from "./routes/entries.js";
+import deadlinePollerPlugin from "./plugins/deadline-poller.js";
+import deadlineRoutes from "./routes/deadline.js";
 import { runMigrations } from "./boot/migrate.js";
 import { ensureSecrets } from "./boot/secrets.js";
 
@@ -55,11 +57,13 @@ async function start(): Promise<void> {
   fastify.register(dbPlugin);
   fastify.register(redisPlugin);
   fastify.register(authPlugin);
+  fastify.register(deadlinePollerPlugin);
   fastify.register(healthRoutes);
   fastify.register(authRoutes);
   fastify.register(webauthnRoutes);
   fastify.register(cryptoRoutes);
   fastify.register(entriesRoutes);
+  fastify.register(deadlineRoutes);
 
   const shutdown = async () => {
     try {

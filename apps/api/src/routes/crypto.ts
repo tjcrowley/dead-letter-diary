@@ -46,12 +46,26 @@ export default async function cryptoRoutes(
    * GET /api/crypto/shard
    * Returns the user's decrypted server shard as base64url.
    * Also returns hkdfSalt for client-side key derivation.
+   * Gate: returns 403 if deadline_state.state is not 'active' (DMS-05).
+   * Permissive default when no deadline_state row exists (user not yet configured deadline).
    */
-  // TODO: Phase 5 will add deadline_state.state === 'active' check (good standing gate)
   fastify.get(
     "/api/crypto/shard",
     { preHandler: [requireAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
+      // Deadline state gate (Phase 5)
+      const deadlineResult = await fastify.pg.query(
+        "SELECT state FROM deadline_state WHERE user_id = $1",
+        [request.userId]
+      );
+      if (deadlineResult.rows.length > 0) {
+        const { state } = deadlineResult.rows[0] as { state: string };
+        if (state !== "active") {
+          return reply.status(403).send({ error: "Diary deadline has passed" });
+        }
+      }
+      // If no row — permissive default (deadline not yet configured, allow through)
+
       const shardResult = await fastify.pg.query(
         "SELECT shard FROM server_shards WHERE user_id = $1",
         [request.userId]

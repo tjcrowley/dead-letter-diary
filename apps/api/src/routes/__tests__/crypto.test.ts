@@ -53,6 +53,8 @@ describe("Crypto routes", () => {
       const queryResults: QueryResult<QueryResultRow>[] = [
         // requireAuth: session lookup
         { rows: [{ id: "session-1" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+        // SELECT deadline_state — no row (permissive default: deadline not configured)
+        { rows: [], command: "SELECT", rowCount: 0, oid: 0, fields: [] },
         // SELECT shard → empty
         { rows: [], command: "SELECT", rowCount: 0, oid: 0, fields: [] },
       ];
@@ -84,6 +86,8 @@ describe("Crypto routes", () => {
       const queryResults: QueryResult<QueryResultRow>[] = [
         // requireAuth: session lookup
         { rows: [{ id: "session-1" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+        // SELECT deadline_state — active (gate passes)
+        { rows: [{ state: "active" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
         // SELECT shard
         { rows: [{ shard: encryptedShard }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
         // SELECT hkdf_salt from users
