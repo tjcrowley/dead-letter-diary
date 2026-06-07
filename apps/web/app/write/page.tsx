@@ -3,8 +3,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { countWords } from "@/lib/word-count";
 import { encryptEntry, decryptEntry } from "@/lib/crypto";
-import { saveDraft, loadLatestDraft } from "@/lib/db";
+import { saveDraft, loadLatestDraft, db } from "@/lib/db";
 import { getSessionDmk } from "@/lib/session-dmk";
+import { queueForSync, registerSyncListener } from "@/lib/sync";
+import { api } from "@/lib/api";
+import { SyncStatus } from "@/components/SyncStatus";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -21,9 +24,7 @@ const PLACEHOLDER_USER_ID = "local-user";
 export default function WritePage() {
   const [text, setText] = useState("");
   const [wordCount, setWordCount] = useState(0);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">(
-    "idle"
-  );
+  const [isSaving, setIsSaving] = useState(false);
 
   const textRef = useRef(text);
   const entryIdRef = useRef<string>("");
@@ -35,6 +36,29 @@ export default function WritePage() {
   textRef.current = text;
 
   // -------------------------------------------------------------------------
+  // Server submit function (used by both doSave and sync listener)
+  // -------------------------------------------------------------------------
+
+  const submitEntryToServer = useCallback(
+    async (entryId: string, ciphertext: ArrayBuffer, iv: Uint8Array, aad: Uint8Array, wc: number) => {
+      try {
+        await api.post("/api/entries", {
+          id: entryId,
+          ciphertext: Array.from(new Uint8Array(ciphertext)),
+          iv: Array.from(iv),
+          aad: Array.from(aad),
+          wordCount: wc,
+        });
+        // Successfully submitted — remove from outbox
+        await db.outbox.delete(entryId);
+      } catch {
+        // Network failure — leave in outbox for retry on next online event
+      }
+    },
+    []
+  );
+
+  // -------------------------------------------------------------------------
   // Encrypt + save helper
   // -------------------------------------------------------------------------
 
@@ -44,7 +68,7 @@ export default function WritePage() {
 
     const wc = countWords(content);
     try {
-      setSaveStatus("saving");
+      setIsSaving(true);
       const { ciphertext, iv, aad } = await encryptEntry(
         dmk,
         content,
@@ -52,21 +76,31 @@ export default function WritePage() {
         PLACEHOLDER_USER_ID,
         wc
       );
-      await saveDraft({
+
+      const draftEntry = {
         id: entryIdRef.current,
         ciphertext,
         iv,
         aad,
         wordCount: wc,
         updatedAt: Date.now(),
-      });
-      setSaveStatus("saved");
+      };
+
+      // 1. Save to local IndexedDB
+      await saveDraft(draftEntry);
+
+      // 2. Queue for server sync (outbox pattern)
+      await queueForSync(draftEntry);
+
+      // 3. Attempt immediate server submit; leave in outbox on failure
+      await submitEntryToServer(entryIdRef.current, ciphertext, iv, aad, wc);
     } catch {
       // Silently fail — auto-save is best-effort; user can keep writing
-      setSaveStatus("idle");
+    } finally {
+      setIsSaving(false);
     }
     pendingSaveRef.current = false;
-  }, []);
+  }, [submitEntryToServer]);
 
   // -------------------------------------------------------------------------
   // Debounced save scheduler
@@ -100,7 +134,8 @@ export default function WritePage() {
   }, [doSave]);
 
   // -------------------------------------------------------------------------
-  // On mount: generate entry ID, load latest draft, set up beforeunload
+  // On mount: generate entry ID, load latest draft, set up beforeunload,
+  //           register online sync listener
   // -------------------------------------------------------------------------
 
   useEffect(() => {
@@ -135,11 +170,24 @@ export default function WritePage() {
     const handleBeforeUnload = () => flushSave();
     window.addEventListener("beforeunload", handleBeforeUnload);
 
+    // Register online event listener for outbox flush
+    // submitFn wraps each OutboxEntry and sends it to the server
+    const cleanupSyncListener = registerSyncListener(async (entry) => {
+      await submitEntryToServer(
+        entry.id,
+        entry.ciphertext,
+        entry.iv,
+        entry.aad,
+        entry.wordCount
+      );
+    });
+
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
+      cleanupSyncListener();
       flushSave();
     };
-  }, [flushSave]);
+  }, [flushSave, submitEntryToServer]);
 
   // -------------------------------------------------------------------------
   // Handle text change
@@ -204,15 +252,13 @@ export default function WritePage() {
           color: meetsMinimum ? "#22c55e" : "#888",
           transition: "color 0.2s ease",
           userSelect: "none",
+          display: "flex",
+          alignItems: "center",
+          gap: "0.75rem",
         }}
       >
         {wordCount} / {WORD_MINIMUM} words
-        {saveStatus === "saving" && (
-          <span style={{ marginLeft: "0.75rem", color: "#888" }}>saving...</span>
-        )}
-        {saveStatus === "saved" && (
-          <span style={{ marginLeft: "0.75rem", color: "#888" }}>saved</span>
-        )}
+        <SyncStatus isSaving={isSaving} />
       </div>
     </div>
   );
