@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-06-07T01:53:36.610Z"
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-06-07T04:35:19.199Z"
 last_activity: 2026-06-06 -- Roadmap created (7 phases, 74 requirements mapped)
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -51,6 +51,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 01-foundation P01 | 3 | 2 tasks | 27 files |
+| Phase 01-foundation P02 | 90 | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -64,6 +65,9 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: Caddy local_certs for HTTPS; SITE_HOSTNAME env var to avoid Docker container ID collision
 - [Phase 01-foundation]: All 10 DB tables scaffolded in Phase 1 migration — no table creation in later phases (locked decision)
 - [Phase 01-foundation]: WEBAUTHN_RP_ID warning is most prominent comment in .env.example — permanent passkey domain commitment
+- [Phase 01-foundation]: npm workspace Docker builds require root build context; API uses workspace flag against root lock file
+- [Phase 01-foundation]: Caddy bound to 127.0.0.1/::1 only — Docker Desktop VPNKit holds 0.0.0.0:443 on macOS
+- [Phase 01-foundation]: Next.js production Docker build uses npx next build (no --turbopack) — turbopack is dev-only
 
 ### Pending Todos
 
@@ -76,6 +80,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-07T01:53:26.249Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-06-07T04:35:19.195Z
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None

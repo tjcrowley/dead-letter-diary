@@ -1,0 +1,150 @@
+---
+phase: 01-foundation
+plan: 02
+subsystem: api
+tags: [fastify, nextjs, postgresql, postgrator, caddy, docker, migrations, typescript, npm-workspaces]
+
+# Dependency graph
+requires:
+  - phase: 01-foundation-01
+    provides: Docker Compose stack, database schema migrations, Caddyfile, env files
+provides:
+  - Fastify API with GET /api/health endpoint and PostgreSQL connectivity check
+  - Automatic Postgrator migrations running on API boot
+  - Next.js standalone production image with Dead Letter Diary landing page
+  - Full 5-service Docker stack booting to healthy state via docker compose up --build
+  - HTTPS reverse proxy through Caddy with local_certs
+affects: [02-auth, 03-diary-core, 04-deadline, 05-notifications]
+
+# Tech tracking
+tech-stack:
+  added: [fastify@5, fastify-plugin@5, pg@8, postgrator@8, dotenv@16, web-push@3, tsx@4, next@15, react@19]
+  patterns: [fastify-plugin-decorate, postgrator-migrations, npm-workspace-docker-build, caddy-local-certs]
+
+key-files:
+  created:
+    - apps/api/src/server.ts
+    - apps/api/src/plugins/db.ts
+    - apps/api/src/routes/health.ts
+    - apps/api/src/boot/migrate.ts
+    - apps/web/app/layout.tsx
+    - apps/web/app/page.tsx
+    - package-lock.json
+    - apps/web/package-lock.json
+  modified:
+    - apps/api/Dockerfile
+    - apps/web/Dockerfile
+    - docker-compose.yml
+
+key-decisions:
+  - "npm workspace layout requires root build context in Dockerfiles — api uses 'npm ci --workspace=apps/api' against root lock file"
+  - "Caddy bound to 127.0.0.1 and ::1 loopback only (not 0.0.0.0) — Docker Desktop VPNKit transparent proxy holds 0.0.0.0:443 on macOS"
+  - "Web Docker build uses standalone next build (no --turbopack flag) — turbopack is dev-only, production uses webpack"
+
+patterns-established:
+  - "Fastify plugin pattern: fastify.decorate('pg', pool) with TypeScript declaration merging on FastifyInstance"
+  - "Migration pattern: Postgrator with pg.Client (not Pool), schemaTable 'schema_migrations', path.join(__dirname) for migration glob"
+  - "Health check pattern: try fastify.pg.query('SELECT 1') — 503 on failure, 200 with timestamp on success"
+  - "Graceful shutdown: SIGINT/SIGTERM handlers call fastify.close()"
+
+requirements-completed: [INST-01, INST-02]
+
+# Metrics
+duration: ~90min (including Docker Desktop debugging)
+completed: 2026-06-07
+---
+
+# Phase 1 Plan 02: API Skeleton and Docker Boot Summary
+
+**Fastify API with pg Pool plugin, Postgrator migrations, and health check; Next.js 15 standalone shell; all 5 Docker services (postgres, redis, api, web, caddy) booting healthy with HTTPS via Caddy local_certs**
+
+## Performance
+
+- **Duration:** ~90 min (including Docker build debugging and Caddy port conflict resolution)
+- **Started:** 2026-06-07T04:00:00Z
+- **Completed:** 2026-06-07T04:33:00Z
+- **Tasks:** 2 completed
+- **Files modified:** 12
+
+## Accomplishments
+- Fastify 5 API with TypeScript, pg Pool plugin, and GET /api/health endpoint that checks DB connectivity
+- Postgrator migration runner invoked before server listen — all 10 tables created on first boot
+- Next.js 15 standalone production build with Dead Letter Diary branding ("Write or it dies.")
+- All 5 Docker services (postgres, redis, api, web, caddy) start healthy via `docker compose up --build -d --wait`
+- HTTPS working at `https://localhost/api/health` and `https://localhost` through Caddy's self-signed local CA
+
+## Task Commits
+
+Each task was committed atomically:
+
+1. **Task 1: Fastify API skeleton** - `8199824` (feat)
+2. **Task 2: Next.js app shell** - `539be8b` (feat)
+3. **Fix: Dockerfile and compose for workspace layout** - `5d13f36` (fix)
+4. **Chore: Add package-lock.json files** - `e0f2061` (chore)
+
+## Files Created/Modified
+- `apps/api/src/server.ts` - Fastify entry point with plugin registration, migration boot, graceful shutdown
+- `apps/api/src/plugins/db.ts` - Fastify plugin decorating instance with pg.Pool via DATABASE_URL
+- `apps/api/src/routes/health.ts` - GET /api/health with DB connectivity check (503 on failure)
+- `apps/api/src/boot/migrate.ts` - Postgrator migration runner using pg.Client, called before listen
+- `apps/web/app/layout.tsx` - Root layout with "Dead Letter Diary" metadata and dark minimal styling
+- `apps/web/app/page.tsx` - Landing page with h1 "Dead Letter Diary" and "Write or it dies." subtitle
+- `apps/api/Dockerfile` - Updated to use repo root build context for npm workspace
+- `apps/web/Dockerfile` - Updated to use apps/web's own package-lock.json
+- `docker-compose.yml` - Build contexts updated; Caddy ports bound to loopback only
+- `package-lock.json` - Root workspace lock file (required by API Docker build)
+- `apps/web/package-lock.json` - Web app standalone lock file (used by web Docker build)
+
+## Decisions Made
+- **npm workspace Docker builds:** API and web Dockerfiles now use repo root as build context. API uses `npm ci --workspace=apps/api` against the root package-lock.json. Web uses its own apps/web/package-lock.json (generated by standalone npm install).
+- **Caddy port binding:** Changed from `0.0.0.0:443` to `127.0.0.1:443` and `::1:443` because Docker Desktop on macOS holds `0.0.0.0:443` via VPNKit transparent proxy. Loopback binding avoids the conflict while preserving HTTPS-on-localhost for all dev use.
+- **Next.js build without --turbopack:** Production Dockerfile uses `npx next build` (no `--turbopack` flag) because the package.json build script uses `--turbopack` which is dev-only. The production image uses the standard webpack build.
+
+## Deviations from Plan
+
+### Auto-fixed Issues
+
+**1. [Rule 3 - Blocking] Dockerfiles incompatible with npm workspace layout**
+- **Found during:** Task 2 (Docker boot verification)
+- **Issue:** Both Dockerfiles used `context: ./apps/api` and `context: ./apps/web` — but the root package-lock.json required by `npm ci` was outside the build context. API has no standalone lock file (workspace hoists everything to root).
+- **Fix:** Updated docker-compose.yml to use repo root as build context for both services, with `dockerfile:` pointing to the app-specific Dockerfile. Updated API Dockerfile to use `npm ci --workspace=apps/api --include-workspace-root`. Updated web Dockerfile to copy apps/web's own package-lock.json (generated via `npm install` locally).
+- **Files modified:** apps/api/Dockerfile, apps/web/Dockerfile, docker-compose.yml, package-lock.json, apps/web/package-lock.json
+- **Verification:** Both `docker compose build api` and `docker compose build web` succeed cleanly.
+- **Committed in:** `5d13f36`, `e0f2061`
+
+**2. [Rule 3 - Blocking] Caddy port 443/80 conflict with Docker Desktop VPNKit transparent proxy**
+- **Found during:** Task 2 (docker compose up)
+- **Issue:** Docker Desktop on macOS with VPNKit transparent proxy enabled holds `0.0.0.0:443` and `0.0.0.0:80` at the OS level, preventing Caddy from binding those ports.
+- **Fix:** Changed Caddy port mappings to `127.0.0.1:443:443` and `::1:443:443` (plus same for 80). This binds only to loopback addresses, avoiding the VPNKit conflict while preserving HTTPS access via `https://localhost`.
+- **Files modified:** docker-compose.yml
+- **Verification:** All 5 services start and report healthy. `curl -sk https://localhost/api/health` returns `{"status":"healthy",...}`.
+- **Committed in:** `5d13f36`
+
+**3. [Rule 3 - Blocking] Next.js build script uses --turbopack (dev-only flag)**
+- **Found during:** Task 2 (web Docker build)
+- **Issue:** package.json `build` script uses `next build --turbopack` — turbopack is experimental/dev-only and not suitable for production Docker images.
+- **Fix:** Changed web Dockerfile to use `npx next build` (without --turbopack flag) to use the stable webpack-based production build.
+- **Files modified:** apps/web/Dockerfile
+- **Verification:** `docker compose build web` succeeds, standalone output produced.
+- **Committed in:** `5d13f36`
+
+---
+
+**Total deviations:** 3 auto-fixed (all Rule 3 — blocking issues during verification)
+**Impact on plan:** All three were necessary to get Docker working. No scope creep — the fixes match what the plan's "Common problems" section anticipated.
+
+## Issues Encountered
+- Docker Desktop VPNKit transparent proxy holds 0.0.0.0:443 even when no explicit listener is registered, causing confusing "address already in use" errors. Resolved by binding Caddy to loopback only.
+
+## User Setup Required
+None - no external service configuration required.
+
+## Next Phase Readiness
+- Full Docker stack running; Fastify API and Next.js frontend verified via HTTPS
+- All 10 database tables created: users, sessions, webauthn_credentials, entries, deadline_state, key_wraps, server_shards, notifications, notification_thresholds, wipe_log
+- Ready for Phase 2: WebAuthn authentication (passkeys)
+- Blocker reminder: WEBAUTHN_RP_ID (domain for passkeys) must be decided before Phase 2 — it is permanent and irreversible
+
+---
+*Phase: 01-foundation*
+*Completed: 2026-06-07*
