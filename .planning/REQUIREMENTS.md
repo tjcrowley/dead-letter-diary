@@ -90,11 +90,11 @@
 
 ### Setup & Settings
 
-- [ ] **SETUP-01**: First-run setup page: create owner account → WebAuthn enrollment → set diary title → set commitments → confirm "no recovery"
-- [ ] **SETUP-02**: Explicit "I understand this diary can be permanently destroyed" acknowledgment (cannot proceed without it)
-- [ ] **SETUP-03**: Settings page: word minimum, timeout, warning thresholds, grace budget, timezone
-- [ ] **SETUP-04**: Streak counter visible on dashboard (days written, current streak)
-- [ ] **SETUP-05**: Deadline countdown visible from every screen
+- [x] **SETUP-01**: First-run setup page: create owner account → WebAuthn enrollment → set diary title → set commitments → confirm "no recovery"
+- [x] **SETUP-02**: Explicit "I understand this diary can be permanently destroyed" acknowledgment (cannot proceed without it)
+- [x] **SETUP-03**: Settings page: word minimum, timeout, warning thresholds, grace budget, timezone
+- [x] **SETUP-04**: Streak counter visible on dashboard (days written, current streak)
+- [x] **SETUP-05**: Deadline countdown visible from every screen
 
 ### Local Deployment & Installer
 
@@ -208,11 +208,11 @@
 | PWA-04 | Phase 4 | Complete |
 | PWA-05 | Phase 4 | Complete |
 | PWA-06 | Phase 4 | Complete |
-| SETUP-01 | Phase 7 | Pending |
-| SETUP-02 | Phase 7 | Pending |
-| SETUP-03 | Phase 7 | Pending |
-| SETUP-04 | Phase 7 | Pending |
-| SETUP-05 | Phase 7 | Pending |
+| SETUP-01 | Phase 7 | Complete |
+| SETUP-02 | Phase 7 | Complete |
+| SETUP-03 | Phase 7 | Complete |
+| SETUP-04 | Phase 7 | Complete |
+| SETUP-05 | Phase 7 | Complete |
 | INST-01 | Phase 1 | Complete |
 | INST-02 | Phase 1 | Complete |
 | INST-03 | Phase 7 | Complete |
