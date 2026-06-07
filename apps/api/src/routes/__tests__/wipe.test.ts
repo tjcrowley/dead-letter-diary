@@ -56,6 +56,168 @@ describe("Wipe routes", () => {
     return app;
   }
 
+  describe("GET /api/account/epitaph", () => {
+    it("returns 401 without authentication", async () => {
+      await buildApp();
+
+      const res = await app.inject({
+        method: "GET",
+        url: "/api/account/epitaph",
+      });
+
+      expect(res.statusCode).toBe(401);
+    });
+
+    it("returns { epitaph: null } when epitaph is not set", async () => {
+      const userId = "user-epitaph-null";
+
+      let callIdx = 0;
+      const responses: QueryResult<QueryResultRow>[] = [
+        // requireAuth session lookup
+        { rows: [{ id: "session-1" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+        // SELECT epitaph FROM users
+        { rows: [{ epitaph: null }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+      ];
+
+      await buildApp(async () => responses[callIdx++]);
+      const token = await createMockSession(app, userId);
+
+      const res = await app.inject({
+        method: "GET",
+        url: "/api/account/epitaph",
+        cookies: { session: token },
+      });
+
+      expect(res.statusCode).toBe(200);
+      const body = res.json();
+      expect(body.epitaph).toBeNull();
+    });
+
+    it("returns { epitaph: 'some text' } when epitaph is set", async () => {
+      const userId = "user-epitaph-set";
+
+      let callIdx = 0;
+      const responses: QueryResult<QueryResultRow>[] = [
+        // requireAuth session lookup
+        { rows: [{ id: "session-1" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+        // SELECT epitaph FROM users
+        { rows: [{ epitaph: "Here lies my secrets" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+      ];
+
+      await buildApp(async () => responses[callIdx++]);
+      const token = await createMockSession(app, userId);
+
+      const res = await app.inject({
+        method: "GET",
+        url: "/api/account/epitaph",
+        cookies: { session: token },
+      });
+
+      expect(res.statusCode).toBe(200);
+      const body = res.json();
+      expect(body.epitaph).toBe("Here lies my secrets");
+    });
+  });
+
+  describe("POST /api/account/epitaph", () => {
+    it("returns 401 without authentication", async () => {
+      await buildApp();
+
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/account/epitaph",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ epitaph: "test" }),
+      });
+
+      expect(res.statusCode).toBe(401);
+    });
+
+    it("sets epitaph when null; returns 200 { ok: true }", async () => {
+      const userId = "user-set-epitaph";
+
+      let callIdx = 0;
+      const responses: QueryResult<QueryResultRow>[] = [
+        // requireAuth session lookup
+        { rows: [{ id: "session-1" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+        // UPDATE users SET epitaph WHERE epitaph IS NULL — 1 row updated
+        { rows: [], command: "UPDATE", rowCount: 1, oid: 0, fields: [] },
+      ];
+
+      await buildApp(async () => responses[callIdx++]);
+      const token = await createMockSession(app, userId);
+
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/account/epitaph",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ epitaph: "Here lies my secrets" }),
+        cookies: { session: token },
+      });
+
+      expect(res.statusCode).toBe(200);
+      const body = res.json();
+      expect(body.ok).toBe(true);
+    });
+
+    it("returns 409 when epitaph already set (immutability enforcement)", async () => {
+      const userId = "user-epitaph-exists";
+
+      let callIdx = 0;
+      const responses: QueryResult<QueryResultRow>[] = [
+        // requireAuth session lookup
+        { rows: [{ id: "session-1" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] },
+        // UPDATE users SET epitaph WHERE epitaph IS NULL — 0 rows updated (already set)
+        { rows: [], command: "UPDATE", rowCount: 0, oid: 0, fields: [] },
+      ];
+
+      await buildApp(async () => responses[callIdx++]);
+      const token = await createMockSession(app, userId);
+
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/account/epitaph",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ epitaph: "Trying to overwrite" }),
+        cookies: { session: token },
+      });
+
+      expect(res.statusCode).toBe(409);
+      const body = res.json();
+      expect(body.error).toBe("Epitaph already set");
+    });
+
+    it("returns 400 when epitaph body is empty or missing", async () => {
+      const userId = "user-bad-epitaph";
+
+      // Always return a valid session so auth passes; validation happens after auth
+      const authRow = { rows: [{ id: "session-1" }], command: "SELECT", rowCount: 1, oid: 0, fields: [] } as QueryResult<QueryResultRow>;
+      await buildApp(async () => authRow);
+      const token = await createMockSession(app, userId);
+
+      // Empty string
+      const res1 = await app.inject({
+        method: "POST",
+        url: "/api/account/epitaph",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ epitaph: "" }),
+        cookies: { session: token },
+      });
+      expect(res1.statusCode).toBe(400);
+
+      // Epitaph exceeds 500 chars
+      const longEpitaph = "x".repeat(501);
+      const res2 = await app.inject({
+        method: "POST",
+        url: "/api/account/epitaph",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ epitaph: longEpitaph }),
+        cookies: { session: token },
+      });
+      expect(res2.statusCode).toBe(400);
+    });
+  });
+
   describe("POST /api/wipe/panic", () => {
     it("returns 401 without authentication", async () => {
       await buildApp();

@@ -3,17 +3,83 @@ import fp from "fastify-plugin";
 import { requireAuth } from "../middleware/requireAuth.js";
 import { sendWipeNotification } from "../lib/notification-sender.js";
 
+interface EpitaphBody {
+  epitaph: string;
+}
+
 /**
- * POST /api/wipe/panic
- *
- * Immediate on-demand wipe for authenticated user.
- * No 60s settle window — panic is instant.
- *
- * Success (200): state was 'active'; shard deleted; state set to 'wiped'; push sent.
- * Error (409):   state is not 'active' (pending_wipe, wiped) or no row exists.
- * Error (500):   unexpected DB error (transaction rolled back).
+ * Wipe routes: POST /api/wipe/panic, GET /api/account/epitaph, POST /api/account/epitaph
  */
 async function wipeRoutes(fastify: FastifyInstance): Promise<void> {
+  /**
+   * GET /api/account/epitaph
+   *
+   * Returns the authenticated user's epitaph (or null if not yet set).
+   * Response: 200 { epitaph: string | null }
+   */
+  fastify.get(
+    "/api/account/epitaph",
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const userId = request.userId;
+
+      const result = await fastify.pg.query(
+        "SELECT epitaph FROM users WHERE id = $1",
+        [userId]
+      );
+
+      const epitaph = result.rows.length > 0
+        ? (result.rows[0] as { epitaph: string | null }).epitaph
+        : null;
+
+      return reply.status(200).send({ epitaph });
+    }
+  );
+
+  /**
+   * POST /api/account/epitaph
+   *
+   * Sets the epitaph for the authenticated user. Immutable — 409 if already set.
+   * Body: { epitaph: string } — must be 1–500 chars.
+   *
+   * Success (200): { ok: true }
+   * Error (400):   epitaph missing, empty, or exceeds 500 chars
+   * Error (409):   epitaph already set (AND epitaph IS NULL guard enforced in SQL)
+   */
+  fastify.post<{ Body: EpitaphBody }>(
+    "/api/account/epitaph",
+    { preHandler: [requireAuth] },
+    async (request: FastifyRequest<{ Body: EpitaphBody }>, reply: FastifyReply) => {
+      const userId = request.userId;
+      const { epitaph } = request.body ?? {};
+
+      if (typeof epitaph !== "string" || epitaph.length === 0 || epitaph.length > 500) {
+        return reply.status(400).send({ error: "Epitaph must be a non-empty string of at most 500 characters" });
+      }
+
+      const result = await fastify.pg.query(
+        "UPDATE users SET epitaph = $2, updated_at = now() WHERE id = $1 AND epitaph IS NULL",
+        [userId, epitaph]
+      );
+
+      if ((result.rowCount ?? 0) === 0) {
+        return reply.status(409).send({ error: "Epitaph already set" });
+      }
+
+      return reply.status(200).send({ ok: true });
+    }
+  );
+
+  /**
+   * POST /api/wipe/panic
+   *
+   * Immediate on-demand wipe for authenticated user.
+   * No 60s settle window — panic is instant.
+   *
+   * Success (200): state was 'active'; shard deleted; state set to 'wiped'; push sent.
+   * Error (409):   state is not 'active' (pending_wipe, wiped) or no row exists.
+   * Error (500):   unexpected DB error (transaction rolled back).
+   */
   fastify.post(
     "/api/wipe/panic",
     { preHandler: [requireAuth] },
