@@ -9,6 +9,7 @@ import healthRoutes from "./routes/health.js";
 import authRoutes from "./routes/auth.js";
 import webauthnRoutes from "./routes/webauthn.js";
 import cryptoRoutes from "./routes/crypto.js";
+import entriesRoutes from "./routes/entries.js";
 import { runMigrations } from "./boot/migrate.js";
 import { ensureSecrets } from "./boot/secrets.js";
 
@@ -58,6 +59,7 @@ async function start(): Promise<void> {
   fastify.register(authRoutes);
   fastify.register(webauthnRoutes);
   fastify.register(cryptoRoutes);
+  fastify.register(entriesRoutes);
 
   const shutdown = async () => {
     try {
