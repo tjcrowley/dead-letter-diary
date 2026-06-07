@@ -40,14 +40,14 @@
 
 ### Dead Man's Switch
 
-- [ ] **DMS-01**: Configurable check-in window (default 24h, range 12h–7 days)
-- [ ] **DMS-02**: Configurable word minimum per check-in (default 50, range 25–500)
-- [ ] **DMS-03**: Server-side deadline state machine with absolute UTC timestamps
-- [ ] **DMS-04**: Deadline computed in user's IANA timezone via date library (not raw arithmetic)
-- [ ] **DMS-05**: Poller (every 60s) checks deadlines — not a cron scheduler
-- [ ] **DMS-06**: Two-phase wipe: mark pending → 60s settle window → confirm → delete shard
-- [ ] **DMS-07**: Row-level locks prevent race between check-in and wipe
-- [ ] **DMS-08**: Wipe log (append-only) written BEFORE shard deletion for crash safety
+- [x] **DMS-01**: Configurable check-in window (default 24h, range 12h–7 days)
+- [x] **DMS-02**: Configurable word minimum per check-in (default 50, range 25–500)
+- [x] **DMS-03**: Server-side deadline state machine with absolute UTC timestamps
+- [x] **DMS-04**: Deadline computed in user's IANA timezone via date library (not raw arithmetic)
+- [x] **DMS-05**: Poller (every 60s) checks deadlines — not a cron scheduler
+- [x] **DMS-06**: Two-phase wipe: mark pending → 60s settle window → confirm → delete shard
+- [x] **DMS-07**: Row-level locks prevent race between check-in and wipe
+- [x] **DMS-08**: Wipe log (append-only) written BEFORE shard deletion for crash safety
 - [ ] **DMS-09**: Grace day: one 24h reprieve per week, manually invoked, weekly budget visible
 - [ ] **DMS-10**: Akrasia Horizon: weakening commitments (lower word count, longer window) requires 7-day advance. Strengthening is immediate.
 
@@ -57,7 +57,7 @@
 - [ ] **NOTIF-02**: Warning tone escalates from gentle to urgent to final across thresholds
 - [ ] **NOTIF-03**: Push setup gated behind Home Screen install check on iOS
 - [ ] **NOTIF-04**: Re-subscribe on every app launch (iOS push subscriptions silently expire)
-- [ ] **NOTIF-05**: In-app deadline banner as backup when push fails — in-app is source of truth
+- [x] **NOTIF-05**: In-app deadline banner as backup when push fails — in-app is source of truth
 - [ ] **NOTIF-06**: `urgency: "high"` on deadline warnings to survive low-power mode
 - [ ] **NOTIF-07**: Soft-ask pattern for push permission (earn the prompt, don't ask on first load)
 
@@ -173,21 +173,21 @@
 | WRITE-04 | Phase 3 | Complete |
 | WRITE-05 | Phase 3 | Complete |
 | WRITE-06 | Phase 7 | Pending |
-| DMS-01 | Phase 5 | Pending |
-| DMS-02 | Phase 5 | Pending |
-| DMS-03 | Phase 5 | Pending |
-| DMS-04 | Phase 5 | Pending |
-| DMS-05 | Phase 5 | Pending |
-| DMS-06 | Phase 5 | Pending |
-| DMS-07 | Phase 5 | Pending |
-| DMS-08 | Phase 5 | Pending |
+| DMS-01 | Phase 5 | Complete |
+| DMS-02 | Phase 5 | Complete |
+| DMS-03 | Phase 5 | Complete |
+| DMS-04 | Phase 5 | Complete |
+| DMS-05 | Phase 5 | Complete |
+| DMS-06 | Phase 5 | Complete |
+| DMS-07 | Phase 5 | Complete |
+| DMS-08 | Phase 5 | Complete |
 | DMS-09 | Phase 5 | Pending |
 | DMS-10 | Phase 5 | Pending |
 | NOTIF-01 | Phase 5 | Pending |
 | NOTIF-02 | Phase 5 | Pending |
 | NOTIF-03 | Phase 5 | Pending |
 | NOTIF-04 | Phase 5 | Pending |
-| NOTIF-05 | Phase 5 | Pending |
+| NOTIF-05 | Phase 5 | Complete |
 | NOTIF-06 | Phase 5 | Pending |
 | NOTIF-07 | Phase 5 | Pending |
 | WIPE-01 | Phase 6 | Pending |

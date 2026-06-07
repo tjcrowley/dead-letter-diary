@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-03-PLAN.md
-last_updated: "2026-06-07T20:29:06.918Z"
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-06-07T21:17:18.885Z"
 last_activity: 2026-06-07 -- Completed 04-02 outbox sync queue — db v2, sync.ts, SyncStatus component, write page wired
 progress:
   total_phases: 7
   completed_phases: 4
-  total_plans: 12
-  completed_plans: 12
+  total_plans: 15
+  completed_plans: 13
   percent: 92
 ---
 
@@ -62,6 +62,7 @@ Progress: [█████████░] 92%
 | Phase 04-offline-pwa P01 | 6 | 2 tasks | 19 files |
 | Phase 04-offline-pwa P02 | 12 | 2 tasks | 7 files |
 | Phase 04-offline-pwa P03 | 3 | 2 tasks | 8 files |
+| Phase 05-dead-mans-switch P01 | 5 | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -108,6 +109,10 @@ Recent decisions affecting current work:
 - [Phase 04-offline-pwa]: detectPrivateMode uses SecurityError on IDB open — NOT quota thresholds (Chrome 2024+ artificial quota applies in all modes)
 - [Phase 04-offline-pwa]: PrivateModeGuard renders null during detection to avoid flash, then shows absolute refusal screen with no dismiss
 - [Phase 04-offline-pwa]: callPersist fires on appinstalled, beforeinstallprompt, and standalone launch — covers all install vectors
+- [Phase 05-dead-mans-switch]: luxon used for computeDeadlineUTC — DST-safe deadline computation via DateTime.now().setZone(tz).plus({hours}).toUTC()
+- [Phase 05-dead-mans-switch]: Two-phase wipe: wipe_log.shard_deleted=true before DELETE server_shards — crash-safe recovery (DMS-08)
+- [Phase 05-dead-mans-switch]: Akrasia weakening triggers 7-day pending_effective_at delay; strengthening is immediate
+- [Phase 05-dead-mans-switch]: Shard gate permissive when no deadline_state row — onboarding must work before deadline is configured
 
 ### Pending Todos
 
@@ -120,6 +125,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-07T20:25:42.309Z
-Stopped at: Completed 04-03-PLAN.md
+Last session: 2026-06-07T21:17:18.881Z
+Stopped at: Completed 05-01-PLAN.md
 Resume file: None
