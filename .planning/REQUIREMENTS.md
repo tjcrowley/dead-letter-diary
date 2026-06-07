@@ -81,12 +81,12 @@
 
 ### PWA
 
-- [ ] **PWA-01**: Installable PWA with web app manifest, icons, splash screens
-- [ ] **PWA-02**: Service Worker via Serwist — app shell cached, crypto endpoints NetworkOnly
-- [ ] **PWA-03**: iOS "Add to Home Screen" coaching (custom instructions with screenshots)
-- [ ] **PWA-04**: SW update handled gracefully — "update available" toast, no mid-write activation
-- [ ] **PWA-05**: WKWebView detection → redirect to Safari with instructions
-- [ ] **PWA-06**: Encryption status badge visible ("End-to-end encrypted")
+- [x] **PWA-01**: Installable PWA with web app manifest, icons, splash screens
+- [x] **PWA-02**: Service Worker via Serwist — app shell cached, crypto endpoints NetworkOnly
+- [x] **PWA-03**: iOS "Add to Home Screen" coaching (custom instructions with screenshots)
+- [x] **PWA-04**: SW update handled gracefully — "update available" toast, no mid-write activation
+- [x] **PWA-05**: WKWebView detection → redirect to Safari with instructions
+- [x] **PWA-06**: Encryption status badge visible ("End-to-end encrypted")
 
 ### Setup & Settings
 
@@ -202,12 +202,12 @@
 | OFFLINE-04 | Phase 4 | Pending |
 | OFFLINE-05 | Phase 4 | Pending |
 | OFFLINE-06 | Phase 4 | Pending |
-| PWA-01 | Phase 4 | Pending |
-| PWA-02 | Phase 4 | Pending |
-| PWA-03 | Phase 4 | Pending |
-| PWA-04 | Phase 4 | Pending |
-| PWA-05 | Phase 4 | Pending |
-| PWA-06 | Phase 4 | Pending |
+| PWA-01 | Phase 4 | Complete |
+| PWA-02 | Phase 4 | Complete |
+| PWA-03 | Phase 4 | Complete |
+| PWA-04 | Phase 4 | Complete |
+| PWA-05 | Phase 4 | Complete |
+| PWA-06 | Phase 4 | Complete |
 | SETUP-01 | Phase 7 | Pending |
 | SETUP-02 | Phase 7 | Pending |
 | SETUP-03 | Phase 7 | Pending |

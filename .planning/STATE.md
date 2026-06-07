@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-02-PLAN.md
-last_updated: "2026-06-07T06:05:43.324Z"
-last_activity: 2026-06-07 -- Completed 03-03 Server crypto and entries endpoints
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-06-07T20:24:00Z"
+last_activity: 2026-06-07 -- Completed 04-01 PWA foundation — Serwist, service worker, manifest, guard components
 progress:
   total_phases: 7
   completed_phases: 3
-  total_plans: 9
-  completed_plans: 9
-  percent: 100
+  total_plans: 10
+  completed_plans: 10
+  percent: 43
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-06)
 
 **Core value:** The diary must actually be inescapably deletable -- cryptographically irrecoverable -- otherwise the commitment device has no teeth.
-**Current focus:** Phase 3: Encryption & Writing
+**Current focus:** Phase 4: Offline PWA
 
 ## Current Position
 
-Phase: 3 of 7 (Encryption & Writing) -- COMPLETE
-Plan: 3 of 3 in current phase -- COMPLETE
+Phase: 4 of 7 (Offline PWA) -- In Progress
+Plan: 1 of 3 in current phase -- COMPLETE
 Status: In Progress
-Last activity: 2026-06-07 -- Completed 03-03 Server crypto and entries endpoints
+Last activity: 2026-06-07 -- Completed 04-01 PWA foundation — Serwist, service worker, manifest, guard components
 
-Progress: [██████████] 100%
+Progress: [███░░░░░░░] 43%
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Progress: [██████████] 100%
 | Phase 03-encryption-writing P01 | 3 | 2 tasks | 6 files |
 | Phase 03-encryption-writing P03 | 3 | 2 tasks | 5 files |
 | Phase 03-encryption-writing P02 | 4 | 2 tasks | 6 files |
+| Phase 04-offline-pwa P01 | 6 | 2 tasks | 19 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,10 @@ Recent decisions affecting current work:
 - [Phase 03-encryption-writing]: Plain textarea only -- no rich text editor per project constraints
 - [Phase 03-encryption-writing]: Session DMK holder in separate module -- Next.js forbids non-page exports from page files
 - [Phase 03-encryption-writing]: Auto-save debounce 1s with flush on beforeunload/unmount
+- [Phase 04-offline-pwa]: Serwist disabled in dev (NODE_ENV !== production) — SW only active in production builds
+- [Phase 04-offline-pwa]: isApiRoute() extracted to lib/sw-route-matcher.ts for testability — sw.ts is a separate webworker compile target
+- [Phase 04-offline-pwa]: skipWaiting: false in Serwist — user-triggered updates only via SKIP_WAITING message (PWA-04)
+- [Phase 04-offline-pwa]: @vitejs/plugin-react required in vitest.config.ts for JSX parsing in .tsx test files
 
 ### Pending Todos
 
@@ -108,6 +113,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-07T06:00:02.961Z
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-06-07T20:24:00Z
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None

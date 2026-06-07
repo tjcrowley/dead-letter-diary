@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Project scaffold, Docker Compose, database schema, Caddy HTTPS, API skeleton (completed 2026-06-07)
 - [x] **Phase 2: Auth & WebAuthn** - Account creation, WebAuthn passkey enrollment, biometric/passphrase unlock, sessions (completed 2026-06-07)
-- [ ] **Phase 3: Encryption & Writing** - Key derivation, shard split, DMK, encrypted write surface with live word count
+- [x] **Phase 3: Encryption & Writing** - Key derivation, shard split, DMK, encrypted write surface with live word count (completed 2026-06-07)
 - [ ] **Phase 4: Offline & PWA** - Service Worker, IndexedDB persistence, sync queue, installable PWA shell
 - [ ] **Phase 5: Dead Man's Switch** - Deadline state machine, check-in validation, grace days, push notifications
 - [ ] **Phase 6: Wipe & Ceremony** - Shard deletion, wipe log, client cleanup, wipe UI, panic encrypt
@@ -86,7 +86,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Serwist SW, PWA manifest, icons, offline page, WKWebView guard, install prompt, SW update toast, encryption badge
+- [x] 04-01-PLAN.md — Serwist SW, PWA manifest, icons, offline page, WKWebView guard, install prompt, SW update toast, encryption badge
 - [ ] 04-02-PLAN.md — Offline write queue (outbox pattern), sync flush on online, SyncStatus indicator
 - [ ] 04-03-PLAN.md — Storage persistence (persist()), incognito detection, quota monitoring, PrivateModeGuard
 
@@ -150,8 +150,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-06-07 |
 | 2. Auth & WebAuthn | 3/3 | Complete   | 2026-06-07 |
-| 3. Encryption & Writing | 2/3 | In Progress|  |
-| 4. Offline & PWA | 0/3 | Not started | - |
+| 3. Encryption & Writing | 3/3 | Complete   | 2026-06-07 |
+| 4. Offline & PWA | 1/3 | In Progress | - |
 | 5. Dead Man's Switch | 0/3 | Not started | - |
 | 6. Wipe & Ceremony | 0/3 | Not started | - |
 | 7. Installer & Polish | 0/3 | Not started | - |
