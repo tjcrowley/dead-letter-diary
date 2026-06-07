@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Phase 1 context gathered
-last_updated: "2026-06-07T01:26:34.046Z"
+stopped_at: Completed 01-01-PLAN.md
+last_updated: "2026-06-07T01:53:36.610Z"
 last_activity: 2026-06-06 -- Roadmap created (7 phases, 74 requirements mapped)
 progress:
   total_phases: 7
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 3
+  completed_plans: 1
   percent: 0
 ---
 
@@ -50,6 +50,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 01-foundation P01 | 3 | 2 tasks | 27 files |
 
 ## Accumulated Context
 
@@ -60,6 +61,9 @@ Recent decisions affecting current work:
 
 - [Roadmap]: 7-phase build order follows crypto dependency chain (auth before encryption, encryption before deadline, installer last)
 - [Roadmap]: INST requirements split across Phase 1 (infra), Phase 6 (shard security), and Phase 7 (installer UX)
+- [Phase 01-foundation]: Caddy local_certs for HTTPS; SITE_HOSTNAME env var to avoid Docker container ID collision
+- [Phase 01-foundation]: All 10 DB tables scaffolded in Phase 1 migration — no table creation in later phases (locked decision)
+- [Phase 01-foundation]: WEBAUTHN_RP_ID warning is most prominent comment in .env.example — permanent passkey domain commitment
 
 ### Pending Todos
 
@@ -72,6 +76,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-07T01:26:34.043Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-foundation/01-CONTEXT.md
+Last session: 2026-06-07T01:53:26.249Z
+Stopped at: Completed 01-01-PLAN.md
+Resume file: None
