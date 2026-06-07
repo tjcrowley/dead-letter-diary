@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-03-PLAN.md
-last_updated: "2026-06-07T21:30:52.824Z"
+stopped_at: Completed 05-04-PLAN.md
+last_updated: "2026-06-07T21:44:42.448Z"
 last_activity: 2026-06-07 -- Completed 04-02 outbox sync queue — db v2, sync.ts, SyncStatus component, write page wired
 progress:
   total_phases: 7
   completed_phases: 5
-  total_plans: 15
-  completed_plans: 15
+  total_plans: 16
+  completed_plans: 16
   percent: 92
 ---
 
@@ -65,6 +65,7 @@ Progress: [█████████░] 92%
 | Phase 05-dead-mans-switch P01 | 5 | 2 tasks | 11 files |
 | Phase 05-dead-mans-switch P02 | 5 | 2 tasks | 12 files |
 | Phase 05-dead-mans-switch P03 | 15 | 2 tasks | 5 files |
+| Phase 05-dead-mans-switch P04 | 2 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -119,6 +120,7 @@ Recent decisions affecting current work:
 - [Phase 05-dead-mans-switch]: ON CONFLICT uses subscription->>'endpoint' JSONB extraction — no endpoint TEXT column needed
 - [Phase 05-dead-mans-switch]: Mixed Akrasia axis logic: each axis evaluated independently — word_minimum strengthening writes immediately even when window_hours weakens; up to 2 UPDATE statements
 - [Phase 05-dead-mans-switch]: Grace budget reset uses Luxon rolling 7-day window (diff >= 7 days from grace_used_at), not Mon-Sun calendar week
+- [Phase 05-dead-mans-switch]: notification_thresholds columns are threshold_minutes (INT) and tone (TEXT) — not hours_before/label/urgency
 
 ### Pending Todos
 
@@ -131,6 +133,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-07T21:30:46.919Z
-Stopped at: Completed 05-03-PLAN.md
+Last session: 2026-06-07T21:44:42.445Z
+Stopped at: Completed 05-04-PLAN.md
 Resume file: None
