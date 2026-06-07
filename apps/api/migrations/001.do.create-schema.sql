@@ -111,5 +111,6 @@ CREATE INDEX idx_wipe_log_user_id ON wipe_log(user_id);
 CREATE INDEX idx_webauthn_credentials_user ON webauthn_credentials(user_id);
 CREATE INDEX idx_key_wraps_user ON key_wraps(user_id);
 CREATE INDEX idx_notifications_user ON notifications(user_id);
+CREATE UNIQUE INDEX idx_notifications_user_endpoint ON notifications(user_id, (subscription->>'endpoint'));
 
 COMMIT;

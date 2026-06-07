@@ -70,6 +70,8 @@ describe("Notification routes", () => {
       expect(res.statusCode).toBe(200);
       // Verify the SQL includes ON CONFLICT
       expect(insertSqls.some((sql) => sql.toUpperCase().includes("ON CONFLICT"))).toBe(true);
+      // The ON CONFLICT clause references the JSONB expression — verify it is present
+      expect(insertSqls.some((sql) => sql.includes("subscription->>'endpoint'"))).toBe(true);
     });
 
     it("returns 400 when subscription body is missing endpoint", async () => {
