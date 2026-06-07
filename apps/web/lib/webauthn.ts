@@ -82,10 +82,10 @@ export async function registerPasskey(): Promise<RegisterResult> {
  */
 export async function authenticatePasskey(): Promise<AuthenticateResult> {
   // 1. Get authentication options + HKDF salt from server
-  const { options, hkdfSalt } = await api.post<{
-    options: PublicKeyCredentialRequestOptionsJSON;
-    hkdfSalt: string;
-  }>("/api/webauthn/auth-options");
+  const response = await api.post<
+    PublicKeyCredentialRequestOptionsJSON & { hkdfSalt: string }
+  >("/api/webauthn/auth-options");
+  const { hkdfSalt, ...options } = response;
 
   // 2. Convert base64url salt to ArrayBuffer for PRF eval
   const saltBuffer = base64URLStringToBuffer(hkdfSalt);
