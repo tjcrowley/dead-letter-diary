@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 06-02-PLAN.md
-last_updated: "2026-06-07T22:52:09.142Z"
+stopped_at: Completed 07-01-PLAN.md
+last_updated: "2026-06-07T23:13:27.128Z"
 last_activity: 2026-06-07 -- Completed 04-02 outbox sync queue — db v2, sync.ts, SyncStatus component, write page wired
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 19
-  completed_plans: 19
+  total_plans: 22
+  completed_plans: 20
   percent: 92
 ---
 
@@ -69,6 +69,7 @@ Progress: [█████████░] 92%
 | Phase 06-wipe-and-ceremony P01 | 12 | 2 tasks | 6 files |
 | Phase 06-wipe-and-ceremony P03 | 2 | 2 tasks | 6 files |
 | Phase 06-wipe-and-ceremony P02 | 18 | 2 tasks | 8 files |
+| Phase 07-installer-and-polish P01 | 6 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -132,6 +133,9 @@ Recent decisions affecting current work:
 - [Phase 06-wipe-and-ceremony]: backup.sh uses set -euo pipefail so any missing env var or pg_dump failure exits loudly — explicit failure by design
 - [Phase 06-wipe-and-ceremony]: SW wipe branch navigates clients to /wiped BEFORE indexedDB.deleteDatabase to prevent onblocked deadlock from open connections
 - [Phase 06-wipe-and-ceremony]: performClientWipe wraps db.delete() in try/catch — safe to call repeatedly; DeadlineBanner redirects in fetchDeadline callback before setDeadlineState
+- [Phase 07-installer-and-polish]: INSTALL_DIR_PLACEHOLDER token: sed substitution at install time — portable, no hardcoded paths
+- [Phase 07-installer-and-polish]: launchd KeepAlive=false: Docker restart:always handles container restarts; launchd fires compose up once at login
+- [Phase 07-installer-and-polish]: systemd Type=oneshot with RemainAfterExit=yes mirrors docker compose -d semantics
 
 ### Pending Todos
 
@@ -144,6 +148,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-07T22:49:01.135Z
-Stopped at: Completed 06-02-PLAN.md
+Last session: 2026-06-07T23:13:27.125Z
+Stopped at: Completed 07-01-PLAN.md
 Resume file: None
