@@ -11,7 +11,10 @@ export default function Home() {
     api
       .get("/api/auth/me")
       .then(() => router.replace("/write"))
-      .catch(() => router.replace("/setup"));
+      .catch((err: unknown) => {
+        const status = (err as { status?: number }).status;
+        router.replace(status === 401 ? "/unlock" : "/setup");
+      });
   }, [router]);
 
   return (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { countWords } from "@/lib/word-count";
 import { encryptEntry, decryptEntry } from "@/lib/crypto";
 import { saveDraft, loadLatestDraft, db } from "@/lib/db";
@@ -15,16 +16,17 @@ import { SyncStatus } from "@/components/SyncStatus";
 
 const WORD_MINIMUM = 50;
 const AUTOSAVE_DELAY_MS = 1_000;
-const PLACEHOLDER_USER_ID = "local-user";
 
 // ---------------------------------------------------------------------------
 // Write Page
 // ---------------------------------------------------------------------------
 
 export default function WritePage() {
+  const router = useRouter();
   const [text, setText] = useState("");
   const [wordCount, setWordCount] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [userId, setUserId] = useState("");
 
   const textRef = useRef(text);
   const entryIdRef = useRef<string>("");
@@ -64,7 +66,7 @@ export default function WritePage() {
 
   const doSave = useCallback(async (content: string) => {
     const dmk = getSessionDmk();
-    if (!dmk || !content.trim()) return;
+    if (!dmk || !content.trim() || !userId) return;
 
     const wc = countWords(content);
     try {
@@ -73,7 +75,7 @@ export default function WritePage() {
         dmk,
         content,
         entryIdRef.current,
-        PLACEHOLDER_USER_ID,
+        userId,
         wc
       );
 
@@ -100,7 +102,7 @@ export default function WritePage() {
       setIsSaving(false);
     }
     pendingSaveRef.current = false;
-  }, [submitEntryToServer]);
+  }, [submitEntryToServer, userId]);
 
   // -------------------------------------------------------------------------
   // Debounced save scheduler
@@ -139,6 +141,14 @@ export default function WritePage() {
   // -------------------------------------------------------------------------
 
   useEffect(() => {
+    // Verify session and get real user ID for AAD binding
+    api.get<{ id: string }>("/api/auth/me")
+      .then((me) => setUserId(me.id))
+      .catch((err: unknown) => {
+        const status = (err as { status?: number }).status;
+        if (status === 401) router.replace("/unlock");
+      });
+
     entryIdRef.current = crypto.randomUUID();
 
     // Try to load the latest draft
@@ -187,7 +197,7 @@ export default function WritePage() {
       cleanupSyncListener();
       flushSave();
     };
-  }, [flushSave, submitEntryToServer]);
+  }, [flushSave, submitEntryToServer, router]);
 
   // -------------------------------------------------------------------------
   // Handle text change

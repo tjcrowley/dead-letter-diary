@@ -104,7 +104,7 @@ export default async function authRoutes(
 
       return reply.status(201).send({
         id: userId,
-        prfCapable: false,
+        hkdfSalt: Buffer.from(hkdfSalt).toString("base64url"),
       });
     }
   );

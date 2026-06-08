@@ -4,8 +4,45 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { authenticatePasskey } from "@/lib/webauthn";
+import {
+  unwrapDmk,
+  deriveShardFromPassphrase,
+  base64urlToUint8,
+} from "@/lib/crypto";
+import { setSessionDmk } from "@/lib/session-dmk";
 
 const PIN_STORAGE_KEY = "dld_pin";
+
+interface WrapEntry {
+  wrappedDmk: string;
+  wrapIv: string;
+  wrapType: string;
+  credentialId: string | null;
+}
+
+async function deriveAndSetDmk(
+  deviceShard: Uint8Array,
+  serverShardB64: string,
+  hkdfSaltB64: string,
+  wraps: WrapEntry[],
+  wrapType: "passphrase" | "webauthn_prf"
+): Promise<void> {
+  const wrap = wraps.find((w) => w.wrapType === wrapType);
+  if (!wrap) throw new Error(`No ${wrapType} key wrap found.`);
+
+  const serverShard = base64urlToUint8(serverShardB64);
+  const hkdfSalt = base64urlToUint8(hkdfSaltB64);
+  const wrappedDmkBuf = base64urlToUint8(wrap.wrappedDmk).buffer as ArrayBuffer;
+
+  const dmk = await unwrapDmk(
+    wrappedDmkBuf,
+    base64urlToUint8(wrap.wrapIv),
+    deviceShard,
+    serverShard,
+    hkdfSalt
+  );
+  setSessionDmk(dmk);
+}
 
 export default function UnlockPage() {
   const router = useRouter();
@@ -33,8 +70,29 @@ export default function UnlockPage() {
     setBioError("");
     setBioLoading(true);
     try {
-      await authenticatePasskey();
-      router.push("/");
+      const result = await authenticatePasskey();
+
+      if (!result.prfResult) {
+        setBioError(
+          "Your passkey doesn't support key derivation (PRF). Use your passphrase to unlock."
+        );
+        return;
+      }
+
+      const [shardResp, wrapsResp] = await Promise.all([
+        api.get<{ shard: string; hkdfSalt: string }>("/api/crypto/shard"),
+        api.get<{ wraps: WrapEntry[] }>("/api/crypto/key-wrap"),
+      ]);
+
+      const prfShard = new Uint8Array(result.prfResult as ArrayBuffer).slice(0, 32);
+      await deriveAndSetDmk(
+        prfShard,
+        shardResp.shard,
+        shardResp.hkdfSalt,
+        wrapsResp.wraps,
+        "webauthn_prf"
+      );
+      router.push("/write");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Biometric unlock failed.";
       if (msg.toLowerCase().includes("no account") || msg.toLowerCase().includes("not found")) {
@@ -52,8 +110,26 @@ export default function UnlockPage() {
     setPassError("");
     setPassLoading(true);
     try {
-      await api.post("/api/auth/unlock", { passphrase });
-      router.push("/");
+      const result = await api.post<{ id: string; hkdfSalt: string }>(
+        "/api/auth/unlock",
+        { passphrase }
+      );
+
+      const [shardResp, wrapsResp] = await Promise.all([
+        api.get<{ shard: string; hkdfSalt: string }>("/api/crypto/shard"),
+        api.get<{ wraps: WrapEntry[] }>("/api/crypto/key-wrap"),
+      ]);
+
+      const hkdfSalt = base64urlToUint8(result.hkdfSalt);
+      const deviceShard = await deriveShardFromPassphrase(passphrase, hkdfSalt);
+      await deriveAndSetDmk(
+        deviceShard,
+        shardResp.shard,
+        result.hkdfSalt,
+        wrapsResp.wraps,
+        "passphrase"
+      );
+      router.push("/write");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unlock failed.";
       if (msg.toLowerCase().includes("no account") || msg.toLowerCase().includes("not found")) {
@@ -97,10 +173,10 @@ export default function UnlockPage() {
       return;
     }
 
-    // PIN matched -- check if session cookie is still valid (no server round-trip for PIN itself)
+    // PIN matched — verify session is still valid (PIN is a UI gate, not a crypto gate)
     try {
       await api.get("/api/auth/me");
-      router.push("/");
+      router.push("/write");
     } catch {
       sessionStorage.removeItem(PIN_STORAGE_KEY);
       setPinError("Session expired. Use passphrase or biometric to unlock.");

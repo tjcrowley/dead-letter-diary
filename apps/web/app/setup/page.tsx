@@ -1,9 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
-import { registerPasskey } from "@/lib/webauthn";
+import { registerPasskey, authenticatePasskey } from "@/lib/webauthn";
+import {
+  generateDmk,
+  wrapDmk,
+  deriveShardFromPassphrase,
+  uint8ToBase64url,
+  base64urlToUint8,
+} from "@/lib/crypto";
+import { setSessionDmk } from "@/lib/session-dmk";
 
 type Step =
   | "create-account"
@@ -48,6 +56,11 @@ export default function SetupPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Key ceremony state (persists across steps)
+  const dmkRef = useRef<CryptoKey | null>(null);
+  const serverShardRef = useRef<Uint8Array | null>(null);
+  const hkdfSaltRef = useRef<Uint8Array | null>(null);
+
   // ── Step 1: Create Account ──────────────────────────────────────────────────
   async function handleCreateAccount(e: React.FormEvent) {
     e.preventDefault();
@@ -64,7 +77,34 @@ export default function SetupPage() {
 
     setLoading(true);
     try {
-      await api.post("/api/auth/register", { passphrase });
+      const result = await api.post<{ id: string; hkdfSalt: string }>(
+        "/api/auth/register",
+        { passphrase }
+      );
+
+      // Key ceremony: generate DMK, split into shards, store server shard + passphrase key wrap
+      const salt = base64urlToUint8(result.hkdfSalt);
+      hkdfSaltRef.current = salt;
+
+      const deviceShard = await deriveShardFromPassphrase(passphrase, salt);
+      const serverShard = crypto.getRandomValues(new Uint8Array(32));
+      serverShardRef.current = serverShard;
+
+      await api.post("/api/crypto/shard", {
+        shard: uint8ToBase64url(serverShard),
+      });
+
+      const dmk = await generateDmk();
+      dmkRef.current = dmk;
+
+      const { wrappedDmk, wrapIv } = await wrapDmk(dmk, deviceShard, serverShard, salt);
+      await api.post("/api/crypto/key-wrap", {
+        wrappedDmk: uint8ToBase64url(new Uint8Array(wrappedDmk)),
+        wrapIv: uint8ToBase64url(wrapIv),
+        wrapType: "passphrase",
+      });
+
+      setSessionDmk(dmk);
       setStep("enroll-passkey");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Account creation failed.");
@@ -80,6 +120,35 @@ export default function SetupPage() {
     try {
       const result = await registerPasskey();
       setPrfStatus(result.prfCapable);
+
+      // If device supports PRF, create a PRF-backed key wrap for passwordless unlock
+      if (
+        result.prfCapable &&
+        dmkRef.current &&
+        serverShardRef.current &&
+        hkdfSaltRef.current
+      ) {
+        try {
+          const authResult = await authenticatePasskey();
+          if (authResult.prfResult) {
+            const prfShard = new Uint8Array(authResult.prfResult as ArrayBuffer).slice(0, 32);
+            const { wrappedDmk, wrapIv } = await wrapDmk(
+              dmkRef.current,
+              prfShard,
+              serverShardRef.current,
+              hkdfSaltRef.current
+            );
+            await api.post("/api/crypto/key-wrap", {
+              wrappedDmk: uint8ToBase64url(new Uint8Array(wrappedDmk)),
+              wrapIv: uint8ToBase64url(wrapIv),
+              wrapType: "webauthn_prf",
+              credentialId: result.credentialId,
+            });
+          }
+        } catch {
+          // PRF wrap failed — passphrase wrap still covers unlock
+        }
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Passkey registration failed."
@@ -197,7 +266,7 @@ export default function SetupPage() {
           {error && <p style={styles.error}>{error}</p>}
 
           <button type="submit" disabled={loading} style={styles.button}>
-            {loading ? "Creating..." : "Create Account"}
+            {loading ? "Creating account…" : "Create Account"}
           </button>
         </form>
       )}
@@ -219,14 +288,14 @@ export default function SetupPage() {
                 disabled={loading}
                 style={styles.button}
               >
-                {loading ? "Registering..." : "Register Passkey"}
+                {loading ? "Registering…" : "Register Passkey"}
               </button>
             </>
           ) : (
             <>
               <p style={styles.success}>Passkey registered successfully.</p>
               <p style={styles.prfInfo}>
-                PRF: {prfStatus ? "Supported" : "Not supported"}
+                PRF: {prfStatus ? "Supported — passwordless unlock enabled" : "Not supported"}
               </p>
               {!prfStatus && (
                 <p style={styles.prfWarning}>
