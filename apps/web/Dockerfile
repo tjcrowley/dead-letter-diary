@@ -1,13 +1,16 @@
-# Build context is the repo root
-# Stage 1: Install dependencies using the web app's own lock file
+# Build context is the repo root (npm workspace — package-lock.json is at root)
+
+# Stage 1: Install dependencies
 FROM node:22-alpine AS deps
 
 WORKDIR /app
 
-COPY apps/web/package.json ./package.json
-COPY apps/web/package-lock.json ./package-lock.json
+# Copy workspace manifests and root lock file
+COPY package.json package-lock.json ./
+COPY apps/web/package.json ./apps/web/package.json
 
-RUN npm ci
+# Install only web workspace dependencies
+RUN npm ci --workspace=apps/web --include-workspace-root
 
 # Stage 2: Build
 FROM node:22-alpine AS builder
@@ -15,7 +18,9 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
-COPY apps/web .
+COPY apps/web ./apps/web
+
+WORKDIR /app/apps/web
 
 # Use next build without --turbopack (turbopack is dev-only; production uses webpack)
 RUN npx next build
@@ -28,11 +33,11 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Copy standalone output
-COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/apps/web/.next/standalone ./
 # Copy static assets (not included in standalone by default)
-COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/apps/web/.next/static ./.next/static
 # Copy public assets
-COPY --from=builder /app/public ./public
+COPY --from=builder /app/apps/web/public ./public
 
 EXPOSE 3000
 

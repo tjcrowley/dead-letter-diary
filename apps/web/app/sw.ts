@@ -105,6 +105,6 @@ self.addEventListener("push", (event: PushEvent) => {
 self.addEventListener("notificationclick", (event: NotificationEvent) => {
   event.notification.close();
   event.waitUntil(
-    clients.openWindow("/write")
+    self.clients.openWindow("/write")
   );
 });

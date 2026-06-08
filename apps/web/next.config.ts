@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import { withSerwistInit } from "@serwist/next";
+import withSerwistInit from "@serwist/next";
 import { spawnSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 

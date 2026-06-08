@@ -144,7 +144,7 @@ export default function SetupPage() {
 
   // ── Step 5: Acknowledgment ──────────────────────────────────────────────────
   function handleBeginWriting() {
-    router.push("/");
+    router.push("/write");
   }
 
   // ── Render ──────────────────────────────────────────────────────────────────
