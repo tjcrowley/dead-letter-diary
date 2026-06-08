@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import withSerwistInit from "@serwist/next";
 import { spawnSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
+import path from "node:path";
 
 function getRevision(): string {
   const result = spawnSync("git", ["rev-parse", "HEAD"], { encoding: "utf-8" });
@@ -22,6 +23,7 @@ const withSerwist = withSerwistInit({
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  outputFileTracingRoot: path.join(__dirname, "../../"),
 };
 
 export default withSerwist(nextConfig);

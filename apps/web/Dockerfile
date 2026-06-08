@@ -28,12 +28,13 @@ RUN npx next build
 # Stage 3: Runner (minimal image with standalone output)
 FROM node:22-alpine AS runner
 
-WORKDIR /app
+# outputFileTracingRoot=workspace root means standalone lands at apps/web/ inside the bundle
+WORKDIR /app/apps/web
 
 ENV NODE_ENV=production
 
-# Copy standalone output
-COPY --from=builder /app/apps/web/.next/standalone ./
+# Copy standalone output (rooted at workspace root due to outputFileTracingRoot)
+COPY --from=builder /app/apps/web/.next/standalone /app/
 # Copy static assets (not included in standalone by default)
 COPY --from=builder /app/apps/web/.next/static ./.next/static
 # Copy public assets
