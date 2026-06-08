@@ -32,7 +32,7 @@ export const api = {
     const res = await fetch(`${BASE_URL}${path}`, {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: data !== undefined ? { "Content-Type": "application/json" } : {},
       body: data !== undefined ? JSON.stringify(data) : undefined,
     });
     return handleResponse<T>(res);
@@ -42,7 +42,7 @@ export const api = {
     const res = await fetch(`${BASE_URL}${path}`, {
       method: "PATCH",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: data !== undefined ? { "Content-Type": "application/json" } : {},
       body: data !== undefined ? JSON.stringify(data) : undefined,
     });
     return handleResponse<T>(res);
